@@ -288,3 +288,37 @@ phishing-detector/
 
 ---
 
+## 6. Datasets Used
+
+### Dataset 1 — Phishing Email Dataset
+**Source:** [Kaggle — naserabdullahalam](https://www.kaggle.com/datasets/naserabdullahalam/phishing-email-dataset)
+
+This is a composite email dataset combining 7 source
+files covering a wide range of real-world phishing and
+legitimate email samples:
+
+| File | Rows | Label | Notes |
+|------|------|-------|-------|
+| CEAS_08.csv | 39,154 | Mixed | Full headers available |
+| Enron.csv | 29,767 | Legitimate | Internal corporate emails |
+| Ling.csv | 2,859 | Mixed | Subject and body only |
+| Nazario.csv | 1,565 | All phishing | No legitimate samples |
+| Nigerian_Fraud.csv | 3,332 | All phishing | 419 fraud emails |
+| SpamAssasin.csv | 5,809 | Mixed | Full headers available |
+| phishing_email.csv | 82,486 | Mixed | Pre-combined text field |
+| **Total** | **164,972** | **52% phishing** | **Well balanced** |
+
+**Why this dataset:** The diversity of sources means the
+model is exposed to many different phishing styles —
+Nigerian fraud, credential harvesting, spam, and
+legitimate corporate email — making it generalize well
+to real-world inbox conditions.
+
+**Preprocessing challenge:** The files have inconsistent
+schemas. Ling and Enron have only subject, body, and
+label. CEAS and SpamAssasin have full headers. A
+`standardize()` function was written to add missing
+columns as NaN before merging all 7 files into one
+unified dataframe of 155,108 rows after deduplication.
+
+---
