@@ -135,3 +135,92 @@ def run_threat_intelligence(parsed_email):
 
     return results
 
+# ──────────────────────────────────────────────────────────
+# VIRUSTOTAL — URL SCANNING
+# ──────────────────────────────────────────────────────────
+
+def scan_url_virustotal(url):
+    """
+    Submits a URL to VirusTotal for analysis
+    Returns malicious status and detection counts
+    """
+    headers = {
+        'x-apikey'    : VIRUSTOTAL_API_KEY,
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    for attempt in range(RETRY_ATTEMPTS):
+        try:
+            # Step 1 — Submit URL for scanning
+            response = requests.post(
+                VIRUSTOTAL_URL_SCAN,
+                headers = headers,
+                data    = {'url': url},
+                timeout = REQUEST_TIMEOUT
+            )
+
+            if response.status_code == 200:
+                scan_data = response.json()
+                url_id    = scan_data.get('data', {}).get('id', '')
+
+                if url_id:
+                    # Step 2 — Retrieve analysis results
+                    return get_virustotal_analysis(url_id, headers)
+
+            elif response.status_code == 429:
+                # Rate limit hit — wait and retry
+                print(f"[threat_intel] VT rate limit hit, waiting 60s...")
+                time.sleep(60)
+                continue
+
+            else:
+                return _vt_error(f"HTTP {response.status_code}")
+
+        except requests.exceptions.Timeout:
+            return _vt_error("Request timed out")
+        except requests.exceptions.ConnectionError:
+            return _vt_error("Connection error")
+        except Exception as e:
+            return _vt_error(str(e))
+
+    return _vt_error("Max retries exceeded")
+
+
+def get_virustotal_analysis(analysis_id, headers):
+    """
+    Polls VirusTotal analysis endpoint for results
+    Waits for analysis to complete
+    """
+    analysis_url = f"https://www.virustotal.com/api/v3/analyses/{analysis_id}"
+
+    for attempt in range(RETRY_ATTEMPTS):
+        try:
+            # Wait for analysis to complete
+            time.sleep(5)
+
+            response = requests.get(
+                analysis_url,
+                headers = headers,
+                timeout = REQUEST_TIMEOUT
+            )
+
+            if response.status_code == 200:
+                data       = response.json()
+                attributes = data.get('data', {}).get('attributes', {})
+                status     = attributes.get('status', '')
+
+                # If still queued wait longer
+                if status == 'queued':
+                    time.sleep(10)
+                    continue
+
+                stats = attributes.get('stats', {})
+                return parse_vt_stats(stats, attributes)
+
+            else:
+                return _vt_error(f"Analysis HTTP {response.status_code}")
+
+        except Exception as e:
+            return _vt_error(str(e))
+
+    return _vt_error("Analysis polling failed")
