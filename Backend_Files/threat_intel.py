@@ -224,3 +224,50 @@ def get_virustotal_analysis(analysis_id, headers):
             return _vt_error(str(e))
 
     return _vt_error("Analysis polling failed")
+
+# ──────────────────────────────────────────────────────────
+# VIRUSTOTAL — IP SCANNING
+# ──────────────────────────────────────────────────────────
+
+def scan_ip_virustotal(ip):
+    """
+    Queries VirusTotal for IP reputation
+    Returns malicious status and detection counts
+    """
+    headers = {'x-apikey': VIRUSTOTAL_API_KEY}
+    url     = f"{VIRUSTOTAL_IP_SCAN}/{ip}"
+
+    for attempt in range(RETRY_ATTEMPTS):
+        try:
+            response = requests.get(
+                url,
+                headers = headers,
+                timeout = REQUEST_TIMEOUT
+            )
+
+            if response.status_code == 200:
+                data       = response.json()
+                attributes = data.get('data', {}).get('attributes', {})
+                stats      = attributes.get('last_analysis_stats', {})
+                return parse_vt_stats(stats, attributes)
+
+            elif response.status_code == 429:
+                print(f"[threat_intel] VT IP rate limit, waiting 60s...")
+                time.sleep(60)
+                continue
+
+            elif response.status_code == 404:
+                return _vt_error("IP not found in VirusTotal database")
+
+            else:
+                return _vt_error(f"HTTP {response.status_code}")
+
+        except requests.exceptions.Timeout:
+            return _vt_error("Request timed out")
+        except requests.exceptions.ConnectionError:
+            return _vt_error("Connection error")
+        except Exception as e:
+            return _vt_error(str(e))
+
+    return _vt_error("Max retries exceeded")
+
