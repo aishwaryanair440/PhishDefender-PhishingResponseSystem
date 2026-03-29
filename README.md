@@ -667,3 +667,26 @@ Text rules      → up to 23 points
 ML rules        → up to 60 points
                    Total capped at 100
 ```
+
+**Weight design rationale:**
+- VirusTotal confirmed malicious URL = 30 points each
+  (capped at 60). A single confirmed malicious URL is
+  nearly decisive on its own.
+- ML model high confidence (≥85%) = 30 points. Strong
+  ML signal is treated equivalently to a confirmed
+  malicious URL since the model achieved >98% F1.
+- SPF/DKIM/DMARC failures = 10 points each. These are
+  necessary but not sufficient on their own since many
+  legitimate small business emails fail these checks.
+- All three auth failures together add 15 bonus points
+  since the combination is a much stronger signal than
+  any individual failure.
+
+**Verdict thresholds (configurable in config.py):**
+- 70+ → Malicious
+- 40-69 → Suspicious
+- 0-39 → Benign
+
+---
+
+
