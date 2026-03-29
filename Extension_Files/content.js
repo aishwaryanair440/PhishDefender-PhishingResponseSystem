@@ -154,4 +154,53 @@ function extractReceiver() {
     return '';
 }
 
+// ──────────────────────────────────────────────────────────
+// BODY EXTRACTION
+// ──────────────────────────────────────────────────────────
+
+function extractBody(container) {
+    const bodySelectors = [
+        // Primary Gmail body selectors
+        '.a3s.aiL',
+        '.a3s',
+        '.ii.gt .a3s',
+        'div[role="main"] .ii.gt',
+        // Fallback selectors
+        '.Am.Al.editable',
+        '[data-message-id] .ii',
+        '.nH .ii'
+    ];
+
+    for (const selector of bodySelectors) {
+        const el = document.querySelector(selector);
+        if (el && el.textContent.trim().length > 10) {
+
+            // Get HTML for processing
+            const rawHtml   = el.innerHTML;
+
+            // Get plain text
+            let plainText   = el.innerText || el.textContent;
+
+            // Clean up excessive whitespace
+            plainText = plainText
+                .replace(/\r\n/g, '\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .replace(/[ \t]+/g, ' ')
+                .trim();
+
+            return plainText;
+        }
+    }
+
+    // Last resort — get all visible text from main area
+    const main = document.querySelector('div[role="main"]');
+    if (main) {
+        return main.innerText
+            ?.replace(/\n{3,}/g, '\n\n')
+            ?.trim() || '';
+    }
+
+    return '';
+}
+
 
