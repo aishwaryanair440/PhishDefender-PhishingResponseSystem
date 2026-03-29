@@ -609,4 +609,48 @@ fully-structured parsed email object.
   results interpretable to non-technical users.
 
 ---
+### `threat_intel.py`
+Handles all external API communication with VirusTotal
+and AbuseIPDB.
 
+**VirusTotal URL scanning flow:**
+1. POST the URL to `/api/v3/urls` to submit it
+2. Receive an analysis ID in the response
+3. Poll `/api/v3/analyses/{id}` every 5 seconds
+4. Wait for status to change from `queued` to
+   `completed`
+5. Parse the `stats` block for malicious,
+   suspicious, harmless, and undetected engine counts
+
+**Why two steps:** VirusTotal does not return results
+immediately. It queues the URL for analysis by 70+
+antivirus and threat intelligence engines. The polling
+mechanism handles this async process transparently.
+
+**Rate limiting:** The free VirusTotal tier allows
+4 requests per minute. A `time.sleep(15)` between URL
+scans respects this limit. If a 429 rate limit response
+is received the code waits 60 seconds and retries.
+
+### `threat_intel.py`
+Handles all external API communication with VirusTotal
+and AbuseIPDB.
+
+**VirusTotal URL scanning flow:**
+1. POST the URL to `/api/v3/urls` to submit it
+2. Receive an analysis ID in the response
+3. Poll `/api/v3/analyses/{id}` every 5 seconds
+4. Wait for status to change from `queued` to
+   `completed`
+5. Parse the `stats` block for malicious,
+   suspicious, harmless, and undetected engine counts
+
+**Why two steps:** VirusTotal does not return results
+immediately. It queues the URL for analysis by 70+
+antivirus and threat intelligence engines. The polling
+mechanism handles this async process transparently.
+
+**Rate limiting:** The free VirusTotal tier allows
+4 requests per minute. A `time.sleep(15)` between URL
+scans respects this limit. If a 429 rate limit response
+is received the code waits 60 seconds and retries.
