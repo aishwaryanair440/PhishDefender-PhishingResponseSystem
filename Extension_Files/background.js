@@ -230,4 +230,58 @@ async function checkServerStatus() {
     }
 }
 
+// ──────────────────────────────────────────────────────────
+// NOTIFICATIONS
+// ──────────────────────────────────────────────────────────
+
+async function sendNotification(result, emailData) {
+    const verdict   = result.verdict;
+    const score     = result.threat_score;
+
+    if (verdict === 'benign') return;
+
+    const titles = {
+        malicious   : 'Phishing Email Detected',
+        suspicious  : 'Suspicious Email Detected'
+    };
+
+    const icons = {
+        malicious   : 'icons/icon128.png',
+        suspicious  : 'icons/icon128.png'
+    };
+
+    const subject   = emailData.subject || 'Unknown subject';
+    const sender    = emailData.sender  || 'Unknown sender';
+
+    const message   = verdict === 'malicious'
+        ? `MALICIOUS — Score: ${score}/100\n` +
+          `From: ${sender}\n` +
+          `Subject: ${subject.substring(0, 50)}`
+        : `SUSPICIOUS — Score: ${score}/100\n` +
+          `From: ${sender}\n` +
+          `Subject: ${subject.substring(0, 50)}`;
+
+    try {
+        await chrome.notifications.create(
+            `phishing-alert-${Date.now()}`,
+            {
+                type        : 'basic',
+                iconUrl     : icons[verdict],
+                title       : titles[verdict],
+                message     : message,
+                priority    : verdict === 'malicious' ? 2 : 1,
+                requireInteraction: verdict === 'malicious'
+            }
+        );
+
+        console.log(
+            `[background] Notification sent for ${verdict} email`
+        );
+
+    } catch (e) {
+        console.warn('[background] Notification failed:', e.message);
+    }
+}
+
+
 
