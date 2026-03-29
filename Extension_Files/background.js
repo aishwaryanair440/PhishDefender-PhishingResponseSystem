@@ -350,5 +350,105 @@ async function getSettings() {
     };
 }
 
+// ──────────────────────────────────────────────────────────
+// FETCH WITH TIMEOUT
+// ──────────────────────────────────────────────────────────
+
+async function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+    const controller    = new AbortController();
+    const timeoutId     = setTimeout(
+        () => controller.abort(),
+        timeoutMs
+    );
+
+    try {
+        const response  = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response;
+
+    } catch (e) {
+        clearTimeout(timeoutId);
+
+        if (e.name === 'AbortError') {
+            throw new Error(
+                `Request timed out after ${timeoutMs / 1000}s. ` +
+                `Threat intelligence APIs can be slow — please try again.`
+            );
+        }
+
+        throw e;
+    }
+}
+
+
+// ──────────────────────────────────────────────────────────
+// UTILITY
+// ──────────────────────────────────────────────────────────
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+
+// ──────────────────────────────────────────────────────────
+// NOTIFICATION CLICK HANDLER
+// Opens the popup when user clicks a notification
+// ──────────────────────────────────────────────────────────
+
+chrome.notifications.onClicked.addListener((notificationId) => {
+    if (notificationId.startsWith('phishing-alert-')) {
+        chrome.action.openPopup().catch(() => {
+            // openPopup may fail in some contexts — safe to ignore
+        });
+        chrome.notifications.clear(notificationId);
+    }
+});
+
+
+// ──────────────────────────────────────────────────────────
+// TAB UPDATE LISTENER
+// Detects when user navigates to a Gmail email
+// ──────────────────────────────────────────────────────────
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    if (
+        changeInfo.status === 'complete' &&
+        tab.url &&
+        tab.url.includes('mail.google.com')
+    ) {
+        console.log('[background] Gmail tab updated:', tab.url);
+
+        // Check auto-scan setting
+        const settings = await getSettings();
+        if (!settings.autoScan) return;
+
+        // Wait for Gmail to render
+        await sleep(2000);
+
+        try {
+            const emailData = await chrome.tabs.sendMessage(
+                tabId,
+                { action: 'extractEmail' }
+            );
+
+            if (emailData && !emailData.error) {
+                const result = await handleAnalyzeEmail(emailData);
+                await chrome.storage.local.set({
+                    lastResult: result
+                });
+            }
+
+        } catch (e) {
+            // Tab may not be ready yet — safe to ignore
+            console.warn('[background] Tab update scan failed:', e.message);
+        }
+    }
+});
+
+console.log('[background] Phishing Detector service worker started');
+
 
 
