@@ -152,3 +152,49 @@ async function handleAnalyzeEmail(emailData) {
 
     return result;
 }
+
+// ──────────────────────────────────────────────────────────
+// NEW EMAIL DETECTED
+// ──────────────────────────────────────────────────────────
+
+async function handleNewEmailDetected(url) {
+    console.log('[background] New email detected:', url);
+
+    // Check auto-scan setting
+    const settings = await getSettings();
+    if (!settings.autoScan) {
+        console.log('[background] Auto-scan disabled — skipping');
+        return;
+    }
+
+    // If auto-scan is enabled get active tab
+    // and trigger extraction automatically
+    try {
+        const [tab] = await chrome.tabs.query({
+            active          : true,
+            currentWindow   : true
+        });
+
+        if (!tab) return;
+
+        // Wait for Gmail to fully render the email
+        await sleep(1500);
+
+        const emailData = await chrome.tabs.sendMessage(
+            tab.id,
+            { action: 'extractEmail' }
+        );
+
+        if (emailData && !emailData.error) {
+            const result = await handleAnalyzeEmail(emailData);
+            // Store result for popup
+            await chrome.storage.local.set({
+                lastResult: result
+            });
+        }
+
+    } catch (e) {
+        console.warn('[background] Auto-scan failed:', e.message);
+    }
+}
+
