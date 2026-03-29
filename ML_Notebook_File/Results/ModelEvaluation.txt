@@ -1,0 +1,126 @@
+=======================================================
+8.0 — Generating Predictions
+=======================================================
+Email predictions generated : 31,022
+URL predictions generated   : 1,917
+
+
+=======================================================
+8.1 — Core Metrics (Accuracy, Precision, Recall, F1)
+=======================================================
+               Accuracy  Precision  Recall  F1 Score  ROC-AUC  Avg Prec
+Model                                                                  
+Email — Train    0.9959     0.9939  0.9981    0.9960   0.9999    0.9999
+Email — Test     0.9890     0.9867  0.9919    0.9893   0.9994    0.9995
+URL — Train      1.0000     1.0000  1.0000    1.0000   1.0000    1.0000
+URL — Test       0.9890     0.9848  0.9924    0.9886   0.9996    0.9996
+
+Overfitting Gap (Train F1 - Test F1):
+  Email model : 0.0067 GOOD
+  URL model   : 0.0114   GOOD
+
+======================================================
+8.2 Confusion Matrix
+======================================================
+
+Email model:
+  True Negatives  (correctly caught legitimate) : 14,989
+  False Positives (legitimate flagged as phish) : 212
+  False Negatives (phishing missed)             : 128
+  True Positives  (correctly caught phishing)   : 15,693
+
+URL model:
+  True Negatives  (correctly caught legitimate) : 986
+  False Positives (legitimate flagged as phish) : 14
+  False Negatives (phishing missed)             : 7
+  True Positives  (correctly caught phishing)   : 910
+8.2 — Confusion matrices plotted
+
+
+=======================================================
+8.3 — ROC Curve (AUC)
+=======================================================
+
+Email Model:
+  AUC Score       : 0.9994
+
+URL Model:
+  AUC Score       : 0.9996
+
+8.3 — ROC curves plotted
+
+
+=======================================================
+8.4 — Precision-Recall Curve
+=======================================================
+
+Email Model:
+  Average Precision : 0.9995
+
+URL Model:
+  Average Precision : 0.9996
+
+=======================================================
+8.5 — Feature Importance
+=======================================================
+
+Email model — Top 10 features:
+    feature    importance
+      wrote 189579.095858
+      enron 142029.055070
+ university  65701.196509
+     thanks  42887.246284
+       list  37272.195986
+         cc  34956.877548
+numtoken pm  29018.845131
+      money  24701.969804
+  url_count  23000.076836
+         pm  22747.309161
+
+URL model — Top 10 features:
+                           feature   importance
+                  PctExtHyperlinks 36735.134497
+PctExtNullSelfRedirectHyperlinksRT 26978.032569
+                PctExtResourceUrls  7059.535413
+     PctNullSelfRedirectHyperlinks  4820.901366
+        FrequentDomainNameMismatch  4607.906389
+                     InsecureForms  3611.076161
+                           NumDash  2817.855234
+                         PathLevel  2594.771096
+                   NumNumericChars  2060.749461
+...
+
+=======================================================
+8.6 — Prediction Probability Distribution
+=======================================================
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+
+Email model confidence:
+  High confidence (>0.9 or <0.1) : 94.4% of predictions
+  Uncertain (0.4 - 0.6)          : 0.7% of predictions
+
+URL model confidence:
+  High confidence (>0.9 or <0.1) : 96.4% of predictions
+  Uncertain (0.4 - 0.6)          : 0.7% of predictions
+8.6 — Probability distributions plotted
+
+
+=======================================================
+8.7 — Full Classification Report
+=======================================================
+
+Email Model:
+              precision    recall  f1-score   support
+
+  Legitimate     0.9915    0.9861    0.9888     15201
+    Phishing     0.9867    0.9919    0.9893     15821
+
+    accuracy                         0.9890     31022
+   macro avg     0.9891    0.9890    0.9890     31022
+weighted avg     0.9891    0.9890    0.9890     31022
+...
+  best_url_model   — LightGBM URL classifier
+  tfidf            — fitted TF-IDF vectorizer
+  scaler           — fitted StandardScaler
+  url_feat_names   — URL feature column names
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
