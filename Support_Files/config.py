@@ -19,3 +19,13 @@ VIRUSTOTAL_URL_SCAN     = "https://www.virustotal.com/api/v3/urls"
 VIRUSTOTAL_IP_SCAN      = "https://www.virustotal.com/api/v3/ip_addresses"
 ABUSEIPDB_URL           = "https://api.abuseipdb.com/api/v2/check"
 
+# ──────────────────────────────────────────────────────────
+# MODEL FILE PATHS
+# ──────────────────────────────────────────────────────────
+
+EMAIL_MODEL_PATH        = "email_model.pkl"
+URL_MODEL_PATH          = "url_model.pkl"
+TFIDF_VECTORIZER_PATH   = "tfidf_vectorizer.pkl"
+SCALER_PATH             = "scaler.pkl"
+URL_FEATURE_NAMES_PATH  = "url_feature_names.pkl"
+MODEL_METADATA_PATH     = "model_metadata.json"
