@@ -1,1 +1,52 @@
+=======================================================
+6.1 — Email Dataset Train-Test Split
+=======================================================
+Total samples          : 155,108
+Training samples       : 124,086
+Testing samples        : 31,022
+Feature count          : 5,013
 
+Training label split:
+  Label 0 : 60,804 (49.0%)
+  Label 1 : 63,282 (51.0%)
+
+Testing label split:
+  Label 0 : 15,201 (49.0%)
+  Label 1 : 15,821 (51.0%)
+
+
+=======================================================
+6.2 — URL Dataset Train-Test Split
+=======================================================
+Total samples          : 9,581
+Training samples       : 7,664
+Testing samples        : 1,917
+Feature count          : 50
+...
+
+Testing label split:
+  Label 0 : 1,000 (52.2%)
+  Label 1 : 917 (47.8%)
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+
+6.3 — Train/test split pie charts plotted
+
+
+=======================================================
+6.4 — Split Summary
+=======================================================
+Email dataset
+  X_email_train : (124086, 5013)
+  X_email_test  : (31022, 5013)
+  y_email_train : (124086,)
+  y_email_test  : (31022,)
+
+URL dataset
+  X_url_train   : (7664, 50)
+  X_url_test    : (1917, 50)
+  y_url_train   : (7664,)
+  y_url_test    : (1917,)
+
+Outputs ready for Section 7:
+  X_email_train, X_email_test, y_email_train, y_email_test
+  X_url_train, X_url_test, y_url_train, y_url_test
