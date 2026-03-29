@@ -127,6 +127,34 @@ at once in a 650px max-height popup. Cards let the
 user expand exactly the sections they care about.
 
 ---
+### `popup.js`
+All dynamic rendering logic for the popup UI.
+
+**XSS prevention:**
+Every string from the API response is passed through
+`escapeHtml()` before being inserted into the DOM.
+This prevents a malicious email from injecting
+JavaScript into the extension popup by crafting a
+subject line or sender name containing script tags.
+
+**Result persistence:**
+The last scan result is saved to
+`chrome.storage.local` by the background service
+worker and loaded by popup.js on every popup open.
+This means the results survive popup close/reopen
+cycles — the user does not lose their scan results
+just by clicking elsewhere.
+
+**Animated score bars:**
+ML probability bars animate to their final width with
+a CSS transition. The animation is delayed 150ms to
+ensure the DOM has fully rendered before the width
+change triggers. Without the delay the transition
+does not play because the element goes from 0 to the
+final width before the browser has a chance to paint.
+
+---
+
 
 
 
