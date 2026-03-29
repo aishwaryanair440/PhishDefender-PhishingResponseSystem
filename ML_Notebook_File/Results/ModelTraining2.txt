@@ -1,0 +1,114 @@
+=======================================================
+7.0 — Data Preparation for GPU
+=======================================================
+Email train type      : <class 'scipy.sparse._csr.csr_matrix'>
+Email train dtype     : float32
+URL train type        : <class 'numpy.ndarray'>
+URL train dtype       : float32
+y_email_train dtype   : int32
+y_url_train dtype     : int32
+GPU data ready
+
+
+=======================================================
+7.1 — Email Model Training
+=======================================================
+
+Training XGBoost (GPU)...
+[0]	train-logloss:0.67095	train-auc:0.83346	eval-logloss:0.67118	eval-auc:0.82995
+[50]	train-logloss:0.29960	train-auc:0.97835	eval-logloss:0.30404	eval-auc:0.97634
+[100]	train-logloss:0.20925	train-auc:0.98853	eval-logloss:0.21540	eval-auc:0.98681
+[150]	train-logloss:0.16673	train-auc:0.99236	eval-logloss:0.17408	eval-auc:0.99071
+[200]	train-logloss:0.14179	train-auc:0.99446	eval-logloss:0.14985	eval-auc:0.99297
+[250]	train-logloss:0.12363	train-auc:0.99576	eval-logloss:0.13232	eval-auc:0.99436
+[299]	train-logloss:0.11065	train-auc:0.99654	eval-logloss:0.11969	eval-auc:0.99527
+
+  XGBoost training time : 19.9s
+
+Training LightGBM (GPU)...
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+...
+1 warning generated.
+1 warning generated.
+1 warning generated.
+1 warning generated.
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+Training until validation scores don't improve for 20 rounds
+[50]	train's binary_logloss: 0.161931	train's auc: 0.994482	eval's binary_logloss: 0.16841	eval's auc: 0.993257
+[100]	train's binary_logloss: 0.0823932	train's auc: 0.997754	eval's binary_logloss: 0.0916039	eval's auc: 0.996832
+[150]	train's binary_logloss: 0.0520878	train's auc: 0.999082	eval's binary_logloss: 0.0627656	eval's auc: 0.998358
+[200]	train's binary_logloss: 0.0368519	train's auc: 0.999585	eval's binary_logloss: 0.048645	eval's auc: 0.998976
+[250]	train's binary_logloss: 0.0277323	train's auc: 0.999797	eval's binary_logloss: 0.0404672	eval's auc: 0.999272
+[300]	train's binary_logloss: 0.0216454	train's auc: 0.999899	eval's binary_logloss: 0.0349239	eval's auc: 0.999448
+Did not meet early stopping. Best iteration is:
+[300]	train's binary_logloss: 0.0216454	train's auc: 0.999899	eval's binary_logloss: 0.0349239	eval's auc: 0.999448
+
+  LightGBM training time : 214.5s
+
+--- Email Model Comparison on Test Set ---
+
+  XGBoost  — Accuracy: 0.9658 | F1: 0.9671
+  LightGBM — Accuracy: 0.9890 | F1: 0.9893
+
+Best email model      : LightGBM
+Best email F1         : 0.9893
+
+Overfitting check (email):
+  Train F1            : 0.9960
+  Test  F1            : 0.9893
+  Difference          : 0.0067
+  Status              : GOOD — no overfitting detected
+...
+  Train F1            : 1.0000
+  Test  F1            : 0.9886
+  Difference          : 0.0114
+  Status              : GOOD — no overfitting detected
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
+
+7.3 — Model comparison plotted
+
+
+=======================================================
+7.4 — Training Summary
+=======================================================
+Email model results:
+  XGBoost  — F1: 0.9671 | Accuracy: 0.9658
+  LightGBM — F1: 0.9893 | Accuracy: 0.9890
+
+URL model results:
+  XGBoost  — F1: 0.9875 | Accuracy: 0.9880
+  LightGBM — F1: 0.9886 | Accuracy: 0.9890
+
+Selected for evaluation:
+  Email model : LightGBM (F1=0.9893)
+  URL model   : LightGBM   (F1=0.9886)
+
+Outputs ready for Section 8:
+  best_email_model, best_email_name, best_email_type
+  best_url_model,   best_url_name,   best_url_type
+  dtrain_email, dtest_email
+  dtrain_url,   dtest_url
