@@ -1,1 +1,31 @@
+=======================================================
+5.1 — Email Feature Engineering
+=======================================================
+Hand-crafted features shape : (155108, 13)
+Feature columns             : ['url_count', 'email_count', 'num_count', 'body_length', 'subject_length', 'word_count', 'avg_word_length', 'exclamation_count', 'question_count', 'capital_ratio', 'keyword_count', 'suspicious_subject', 'has_html']
 
+Sample stats:
+       url_count  email_count  num_count  body_length  subject_length  \
+count  155108.00    155108.00  155108.00    155108.00       155108.00   
+mean        0.56         0.55      14.13       842.19          696.19   
+std         9.13       115.50    1342.19     12375.49        11317.56   
+min         0.00         0.00       0.00         0.00            0.00   
+25%         0.00         0.00       0.00         0.00           35.00   
+50%         0.00         0.00       0.00         0.00          122.00   
+75%         0.00         0.00       6.00       696.00          605.00   
+max      3133.00     45442.00  526213.00   4599644.00      4279526.00   
+
+       word_count  avg_word_length  exclamation_count  question_count  \
+count   155108.00        155108.00          155108.00       155108.00   
+mean       136.08             2.73               0.60            0.72   
+std        603.11             5.96               4.99           15.77   
+min          0.00             0.00               0.00            0.00   
+25%          0.00             0.00               0.00            0.00   
+50%          0.00             0.00               0.00            0.00   
+75%        122.00             4.61               0.00            0.00   
+...
+  y_email  — email labels
+  url_fe   — URL feature dataframe (dense)
+  y_url    — URL labels
+  tfidf    — fitted TF-IDF vectorizer (save in Section 9)
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
