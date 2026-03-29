@@ -1,0 +1,31 @@
+3.10 — URL feature distributions plotted
+
+
+=======================================================
+EDA SUMMARY
+=======================================================
+Total email samples       : 164,972
+Phishing emails           : 85,782
+Legitimate emails         : 79,190
+Avg body length           : 880 chars
+Avg subject length        : 662 chars
+Phishing avg body length  : 696 chars
+Legitimate avg body length: 1080 chars
+
+Missing values in email_df:
+sender            115443
+receiver          117204
+date              115595
+subject              347
+body                   1
+urls              115112
+label                  0
+source                 0
+body_length            0
+subject_length         0
+...
+Most frequent phishing keyword : click
+Most frequent legit keyword    : free
+
+EDA complete — 10 sections done
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
