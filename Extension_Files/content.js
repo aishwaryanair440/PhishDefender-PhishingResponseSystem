@@ -129,6 +129,29 @@ function extractSubject() {
     return '';
 }
 
+// ──────────────────────────────────────────────────────────
+// RECEIVER EXTRACTION
+// ──────────────────────────────────────────────────────────
 
+function extractReceiver() {
+    const selectors = [
+        'span.g2[email]',
+        'span[data-hovercard-id].g2',
+        '.hb span[email]'
+    ];
+
+    for (const selector of selectors) {
+        const el = document.querySelector(selector);
+        if (el) {
+            const email = el.getAttribute('email') ||
+                          el.getAttribute('data-hovercard-id');
+            if (email && email.includes('@')) {
+                return email.trim();
+            }
+        }
+    }
+
+    return '';
+}
 
 
