@@ -72,3 +72,28 @@ function extractEmailFromDOM() {
         source      : 'gmail'
     };
 }
+
+// ──────────────────────────────────────────────────────────
+// EMAIL CONTAINER DETECTION
+// ──────────────────────────────────────────────────────────
+
+function findEmailContainer() {
+    // Gmail uses several possible selectors
+    // depending on view mode and version
+    const selectors = [
+        'div[role="main"] div[data-message-id]',
+        'div[role="main"] .a3s',
+        'div[role="main"] .ii.gt',
+        'div[role="main"] .AO',
+        '.nH .if',
+        'div[data-legacy-message-id]'
+    ];
+
+    for (const selector of selectors) {
+        const el = document.querySelector(selector);
+        if (el) return el;
+    }
+
+    return null;
+}
+
