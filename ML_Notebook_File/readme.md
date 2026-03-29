@@ -110,4 +110,26 @@ overfitting, and trains an order of magnitude faster
 than scikit-learn's GradientBoostingClassifier on
 large datasets.
 
+**Key hyperparameters:**
+```python
+lgb_params = {
+    'device'           : 'gpu',
+    'objective'        : 'binary',
+    'num_leaves'       : 63,
+    'learning_rate'    : 0.05,
+    'subsample'        : 0.8,
+    'colsample_bytree' : 0.7,
+    'min_child_samples': 20,
+    'reg_alpha'        : 0.1,
+    'reg_lambda'       : 1.0
+}
+```
+
+`reg_alpha` and `reg_lambda` are L1 and L2
+regularization terms that prevent overfitting.
+`min_child_samples=20` ensures each leaf has enough
+samples. Early stopping with `stopping_rounds=20`
+halts training when validation score stops improving.
+
+
 
