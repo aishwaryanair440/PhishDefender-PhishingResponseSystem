@@ -1,1 +1,8 @@
-
+/kaggle/input/datasets/naserabdullahalam/phishing-email-dataset/SpamAssasin.csv
+/kaggle/input/datasets/naserabdullahalam/phishing-email-dataset/Nazario.csv
+/kaggle/input/datasets/naserabdullahalam/phishing-email-dataset/Nigerian_Fraud.csv
+/kaggle/input/datasets/naserabdullahalam/phishing-email-dataset/CEAS_08.csv
+/kaggle/input/datasets/naserabdullahalam/phishing-email-dataset/Enron.csv
+/kaggle/input/datasets/naserabdullahalam/phishing-email-dataset/Ling.csv
+/kaggle/input/datasets/naserabdullahalam/phishing-email-dataset/phishing_email.csv
+/kaggle/input/datasets/shashwatwork/phishing-dataset-for-machine-learning/Phishing_Legitimate_full.csv
