@@ -24,3 +24,51 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Required for async sendResponse
     return true;
 });
+
+// ──────────────────────────────────────────────────────────
+// MAIN EXTRACTION FUNCTION
+// ──────────────────────────────────────────────────────────
+
+function extractEmailFromDOM() {
+
+    // ── Check if an email is open ─────────────────────────
+    const emailContainer = findEmailContainer();
+
+    if (!emailContainer) {
+        return {
+            error: 'No email is open. Please click on an email to open it first.'
+        };
+    }
+
+    // ── Extract all fields ────────────────────────────────
+    const subject   = extractSubject();
+    const sender    = extractSender(emailContainer);
+    const receiver  = extractReceiver();
+    const body      = extractBody(emailContainer);
+    const headers   = extractHeaders(emailContainer);
+    const urls      = extractURLsFromBody(body);
+
+    // ── Validate minimum data ─────────────────────────────
+    if (!subject && !body) {
+        return {
+            error: 'Could not extract email content. Try scrolling to fully load the email.'
+        };
+    }
+
+    console.log('[content] Email extracted successfully');
+    console.log(`[content] Subject  : ${subject?.substring(0, 60)}`);
+    console.log(`[content] Sender   : ${sender}`);
+    console.log(`[content] Body len : ${body?.length}`);
+    console.log(`[content] URLs     : ${urls.length}`);
+
+    return {
+        subject     : subject   || '',
+        sender      : sender    || '',
+        receiver    : receiver  || '',
+        body        : body      || '',
+        headers     : headers   || {},
+        urls        : urls      || [],
+        timestamp   : new Date().toISOString(),
+        source      : 'gmail'
+    };
+}
