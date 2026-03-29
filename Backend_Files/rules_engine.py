@@ -633,4 +633,30 @@ def build_ioc_list(parsed_email, threat_intel, ml_scores, triggered_rules):
 
     return iocs
 
+# ──────────────────────────────────────────────────────────
+# SUMMARY BUILDER
+# ──────────────────────────────────────────────────────────
+
+def build_summary(verdict, score, triggered_rules, iocs):
+    """
+    Builds a human-readable summary string
+    shown in the extension popup
+    """
+    rule_count = len(triggered_rules)
+    ioc_count  = len(iocs)
+
+    verdict_text = {
+        'malicious' : 'MALICIOUS — This email is a phishing attempt',
+        'suspicious': 'SUSPICIOUS — This email shows phishing indicators',
+        'benign'    : 'BENIGN — This email appears safe'
+    }.get(verdict, 'UNKNOWN')
+
+    summary = (
+        f"{verdict_text}. "
+        f"Threat score: {score}/100. "
+        f"{rule_count} rule(s) triggered. "
+        f"{ioc_count} IOC(s) identified."
+    )
+
+    return summary
 
