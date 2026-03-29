@@ -16,3 +16,11 @@ from config import (
     ABUSEIPDB_API_KEY,
     ABUSEIPDB_URL
 )
+
+# ──────────────────────────────────────────────────────────
+# CONSTANTS
+# ──────────────────────────────────────────────────────────
+
+REQUEST_TIMEOUT     = 10      # seconds per API call
+MAX_URLS_TO_SCAN    = 5       # limit to avoid API quota exhaustion
+RETRY_ATTEMPTS      = 2       # retries on transient failures
