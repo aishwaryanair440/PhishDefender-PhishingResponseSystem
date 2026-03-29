@@ -92,3 +92,80 @@ def load_models():
 
     print("[ml_classifier] All models loaded successfully")
 
+# ──────────────────────────────────────────────────────────
+# MAIN ENTRY POINT
+# ──────────────────────────────────────────────────────────
+
+def run_ml_classifier(parsed_email):
+    """
+    Main function called by app.py
+    Accepts parsed email object from email_parser.py
+    Returns ML scores for both email and URL models
+    """
+    if _email_model is None:
+        raise RuntimeError(
+            "Models not loaded. Call load_models() first."
+        )
+
+    results = {
+        'email_phishing_probability' : 0.0,
+        'url_phishing_probability'   : 0.0,
+        'email_prediction'           : 0,
+        'url_prediction'             : 0,
+        'combined_probability'       : 0.0,
+        'combined_prediction'        : 0,
+        'email_model_used'           : True,
+        'url_model_used'             : False,
+        'model_info'                 : {},
+        'error'                      : None
+    }
+
+    # ── Run email model ───────────────────────────────────
+    try:
+        email_prob = predict_email(parsed_email)
+        results['email_phishing_probability'] = round(email_prob, 4)
+        results['email_prediction'] = int(email_prob >= ML_THRESHOLD)
+    except Exception as e:
+        results['error'] = f"Email model error: {str(e)}"
+        print(f"[ml_classifier] Email model error: {e}")
+
+    # ── Run URL model if URLs exist ────────────────────────
+    urls = parsed_email.get('urls', [])
+    if urls:
+        try:
+            url_prob = predict_url(urls[0])
+            results['url_phishing_probability'] = round(url_prob, 4)
+            results['url_prediction'] = int(url_prob >= ML_THRESHOLD)
+            results['url_model_used'] = True
+        except Exception as e:
+            results['error'] = f"URL model error: {str(e)}"
+            print(f"[ml_classifier] URL model error: {e}")
+    else:
+        # No URLs — URL model not applicable
+        results['url_phishing_probability'] = 0.0
+        results['url_model_used']           = False
+
+    # ── Combine scores ────────────────────────────────────
+    results['combined_probability'] = calculate_combined_score(
+        results['email_phishing_probability'],
+        results['url_phishing_probability'],
+        results['url_model_used']
+    )
+    results['combined_prediction'] = int(
+        results['combined_probability'] >= ML_THRESHOLD
+    )
+
+    # ── Add model info ────────────────────────────────────
+    results['model_info'] = build_model_info(results)
+
+    print(
+        f"[ml_classifier] "
+        f"Email prob: {results['email_phishing_probability']:.4f} | "
+        f"URL prob: {results['url_phishing_probability']:.4f} | "
+        f"Combined: {results['combined_probability']:.4f}"
+    )
+
+    return results
+
+
+
