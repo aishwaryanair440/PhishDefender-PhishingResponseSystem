@@ -217,5 +217,38 @@ verdicts to avoid unnecessary file creation for clean
 emails.
 
 ---
+### `app.py`
+The Flask application entry point and orchestration
+layer.
 
+**CORS configuration:** The extension origin
+`chrome-extension://*` is explicitly allowed. Without
+this the browser would block the extension's fetch
+requests to the local server due to the Same-Origin
+Policy.
+
+**Pipeline orchestration:**
+The `/analyze` endpoint calls all 4 modules in strict
+sequence:
+1. `email_parser.parse_email()`
+2. `ml_classifier.run_ml_classifier()`
+3. `threat_intel.run_threat_intelligence()`
+4. `rules_engine.run_rules_engine()`
+5. `report_generator.generate_report()` (conditional)
+
+**Why ML before threat intel:** ML inference is fast
+(milliseconds) while VirusTotal scanning is slow
+(15-60+ seconds per URL). Running ML first means the
+rules engine already has ML scores available when it
+receives the threat intel results. More importantly,
+if the threat intel APIs are unavailable the ML scores
+alone still produce a meaningful verdict.
+
+**Error handling:** Every step is wrapped in
+try-except. A failure in any single module returns a
+clean JSON error response rather than crashing the
+server. The extension popup displays the error
+message to the user.
+
+---
 
