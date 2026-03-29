@@ -29,3 +29,14 @@ TFIDF_VECTORIZER_PATH   = "tfidf_vectorizer.pkl"
 SCALER_PATH             = "scaler.pkl"
 URL_FEATURE_NAMES_PATH  = "url_feature_names.pkl"
 MODEL_METADATA_PATH     = "model_metadata.json"
+
+# ──────────────────────────────────────────────────────────
+# THREAT SCORING THRESHOLDS
+# ──────────────────────────────────────────────────────────
+
+# ML model prediction threshold
+ML_THRESHOLD            = 0.5
+
+# Final unified threat score thresholds (0-100)
+THRESHOLD_MALICIOUS     = 70
+THRESHOLD_SUSPICIOUS    = 40
