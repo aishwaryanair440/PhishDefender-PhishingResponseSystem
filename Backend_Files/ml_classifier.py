@@ -401,4 +401,134 @@ def extract_url_features(url_obj):
         )
     }
 
+# ──────────────────────────────────────────────────────────
+# URL FEATURE HELPERS
+# ──────────────────────────────────────────────────────────
+
+def has_random_string(domain):
+    """
+    Detects if domain contains a random-looking string
+    (consonant clusters longer than 4 chars)
+    """
+    consonants = re.findall(r'[bcdfghjklmnpqrstvwxyz]{5,}', domain.lower())
+    return len(consonants) > 0
+
+
+def has_domain_in_subdomains(domain):
+    """
+    Checks if a known brand domain appears in subdomains
+    """
+    brands  = [
+        'paypal', 'google', 'amazon', 'apple',
+        'microsoft', 'facebook', 'netflix', 'ebay'
+    ]
+    parts   = domain.split('.')
+    subdomain = '.'.join(parts[:-2]) if len(parts) > 2 else ''
+    return any(brand in subdomain.lower() for brand in brands)
+
+
+def has_domain_in_path(path):
+    """
+    Checks if a domain-like pattern appears in URL path
+    """
+    return bool(re.search(r'[a-z0-9\-]+\.(com|net|org|gov)', path.lower()))
+
+
+def count_sensitive_words(url):
+    """
+    Counts sensitive phishing-related words in URL
+    """
+    sensitive = [
+        'secure', 'account', 'update', 'login',
+        'verify', 'bank', 'confirm', 'password',
+        'signin', 'payment', 'billing', 'support'
+    ]
+    url_lower = url.lower()
+    return sum(1 for w in sensitive if w in url_lower)
+
+
+def has_brand_name(url):
+    """
+    Checks if a known brand name is embedded in the URL
+    """
+    brands = [
+        'paypal', 'google', 'amazon', 'apple',
+        'microsoft', 'facebook', 'netflix', 'ebay',
+        'instagram', 'twitter', 'linkedin', 'dropbox'
+    ]
+    url_lower = url.lower()
+    return any(brand in url_lower for brand in brands)
+
+
+# ──────────────────────────────────────────────────────────
+# SCORE COMBINATION
+# ──────────────────────────────────────────────────────────
+
+def calculate_combined_score(email_prob, url_prob, url_model_used):
+    """
+    Combines email and URL model probabilities
+    Email model gets higher weight as it has more context
+    If no URLs — email model score used directly
+    """
+    if not url_model_used:
+        return email_prob
+
+    # Weighted average — email model 60%, URL model 40%
+    combined = (email_prob * 0.6) + (url_prob * 0.4)
+    return round(combined, 4)
+
+
+# ──────────────────────────────────────────────────────────
+# MODEL INFO
+# ──────────────────────────────────────────────────────────
+
+def build_model_info(results):
+    """
+    Builds a human-readable model info dict
+    shown in the extension popup
+    """
+    email_prob  = results['email_phishing_probability']
+    url_prob    = results['url_phishing_probability']
+    combined    = results['combined_probability']
+
+    return {
+        'email_model': {
+            'probability'   : email_prob,
+            'prediction'    : 'Phishing' if results['email_prediction'] else 'Legitimate',
+            'confidence'    : get_confidence_label(email_prob),
+            'type'          : _metadata.get('email_model', {}).get('type', 'LightGBM'),
+            'trained_f1'    : _metadata.get('email_model', {}).get('f1_score', 'N/A')
+        },
+        'url_model': {
+            'probability'   : url_prob,
+            'prediction'    : 'Phishing' if results['url_prediction'] else 'Legitimate',
+            'confidence'    : get_confidence_label(url_prob),
+            'type'          : _metadata.get('url_model', {}).get('type', 'LightGBM'),
+            'trained_f1'    : _metadata.get('url_model', {}).get('f1_score', 'N/A'),
+            'applicable'    : results['url_model_used']
+        },
+        'combined': {
+            'probability'   : combined,
+            'prediction'    : 'Phishing' if results['combined_prediction'] else 'Legitimate',
+            'confidence'    : get_confidence_label(combined),
+            'weights'       : '60% email + 40% URL' if results['url_model_used'] else '100% email'
+        }
+    }
+
+
+def get_confidence_label(probability):
+    """
+    Converts a probability into a confidence label
+    """
+    if probability >= 0.90:
+        return 'Very High'
+    elif probability >= 0.75:
+        return 'High'
+    elif probability >= 0.50:
+        return 'Medium'
+    elif probability >= 0.25:
+        return 'Low'
+    else:
+        return 'Very Low'
+
 
