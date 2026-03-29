@@ -283,5 +283,59 @@ async function sendNotification(result, emailData) {
     }
 }
 
+// ──────────────────────────────────────────────────────────
+// HISTORY MANAGEMENT
+// ──────────────────────────────────────────────────────────
+
+async function saveToHistory(emailData, result) {
+    try {
+        const stored    = await chrome.storage.local.get('scanHistory');
+        const history   = stored.scanHistory || [];
+
+        const entry = {
+            id          : Date.now(),
+            timestamp   : new Date().toISOString(),
+            subject     : emailData.subject || 'No subject',
+            sender      : emailData.sender  || 'Unknown',
+            verdict     : result.verdict,
+            score       : result.threat_score,
+            ioc_count   : result.iocs?.length || 0,
+            report_url  : result.report?.download_url || null
+        };
+
+        // Add to front of history
+        history.unshift(entry);
+
+        // Keep only last 50 scans
+        const trimmed   = history.slice(0, 50);
+
+        await chrome.storage.local.set({
+            scanHistory : trimmed,
+            lastResult  : result
+        });
+
+        console.log(
+            `[background] Saved to history — ` +
+            `Total entries: ${trimmed.length}`
+        );
+
+    } catch (e) {
+        console.warn('[background] Failed to save history:', e.message);
+    }
+}
+
+async function getHistory() {
+    const stored = await chrome.storage.local.get('scanHistory');
+    return stored.scanHistory || [];
+}
+
+async function clearHistory() {
+    await chrome.storage.local.set({
+        scanHistory : [],
+        lastResult  : null
+    });
+    console.log('[background] History cleared');
+}
+
 
 
