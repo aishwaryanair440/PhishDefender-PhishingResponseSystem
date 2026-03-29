@@ -27,3 +27,24 @@ from config import (
     REPORT_TITLE,
     REPORT_AUTHOR
 )
+
+# ──────────────────────────────────────────────────────────
+# COLOUR PALETTE
+# ──────────────────────────────────────────────────────────
+
+RED         = colors.HexColor('#C0392B')
+ORANGE      = colors.HexColor('#E67E22')
+GREEN       = colors.HexColor('#27AE60')
+DARK_BLUE   = colors.HexColor('#1A252F')
+MID_BLUE    = colors.HexColor('#2C3E50')
+LIGHT_BLUE  = colors.HexColor('#2980B9')
+LIGHT_GREY  = colors.HexColor('#F2F3F4')
+MID_GREY    = colors.HexColor('#BDC3C7')
+WHITE       = colors.white
+BLACK       = colors.black
+
+VERDICT_COLORS = {
+    'malicious' : RED,
+    'suspicious': ORANGE,
+    'benign'    : GREEN
+}
