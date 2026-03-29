@@ -731,4 +731,207 @@ the phishing is likely text-based social engineering
 which the email model is specifically trained to detect.
 
 ---
+### `report_generator.py`
+Generates a multi-page professional PDF incident report
+using ReportLab's Platypus layout engine.
+
+**Why ReportLab:** ReportLab is the industry-standard
+Python PDF library. It produces true vector PDFs that
+are printable, searchable, and professional-grade —
+unlike HTML-to-PDF conversion libraries which often
+produce inconsistent output.
+
+**Report structure (10 sections):**
+1. Title banner with timestamp and classification level
+2. Verdict banner (color-coded red/orange/green)
+3. Executive summary with 5-column stats table
+4. Email metadata
+5. Threat score breakdown by category
+6. ML model analysis table
+7. Triggered rules with severity and weight
+8. URL scan results from VirusTotal
+9. IP reputation analysis from both APIs
+10. IOC list, header authentication, and recommended
+    actions
+
+**Design rationale:** The report is intentionally
+formatted to match the structure of real security
+incident reports used in SOC environments. A security
+professional reading this report should immediately
+recognize the format and be able to act on it without
+additional training.
+
+Reports are only generated for malicious and suspicious
+verdicts to avoid unnecessary file creation for clean
+emails.
+
+---
+
+### `app.py`
+The Flask application entry point and orchestration
+layer.
+
+**CORS configuration:** The extension origin
+`chrome-extension://*` is explicitly allowed. Without
+this the browser would block the extension's fetch
+requests to the local server due to the Same-Origin
+Policy.
+
+**Pipeline orchestration:**
+The `/analyze` endpoint calls all 4 modules in strict
+sequence:
+1. `email_parser.parse_email()`
+2. `ml_classifier.run_ml_classifier()`
+3. `threat_intel.run_threat_intelligence()`
+4. `rules_engine.run_rules_engine()`
+5. `report_generator.generate_report()` (conditional)
+
+**Why ML before threat intel:** ML inference is fast
+(milliseconds) while VirusTotal scanning is slow
+(15-60+ seconds per URL). Running ML first means the
+rules engine already has ML scores available when it
+receives the threat intel results. More importantly,
+if the threat intel APIs are unavailable the ML scores
+alone still produce a meaningful verdict.
+
+**Error handling:** Every step is wrapped in
+try-except. A failure in any single module returns a
+clean JSON error response rather than crashing the
+server. The extension popup displays the error
+message to the user.
+
+---
+
+## 9. Browser Extension — Deep Dive
+
+### `manifest.json`
+Uses Manifest V3 (MV3) — the current and future
+standard for Chrome extensions. MV3 replaces background
+pages with service workers, tightens the Content
+Security Policy, and restricts remote code execution.
+
+**Key permissions:**
+- `activeTab` — access to the current Gmail tab
+- `storage` — persist scan results and history
+- `scripting` — inject content.js into Gmail pages
+- `tabs` — query and communicate with tabs
+- `notifications` — push phishing alerts
+
+**host_permissions:**
+- `https://mail.google.com/*` — required to inject
+  content.js into Gmail
+- `http://127.0.0.1:5000/*` — required to allow the
+  service worker to fetch from the local Flask server
+
+**Why MV3:** MV3 is required for new extensions
+submitted to the Chrome Web Store. Building with MV3
+from the start means the extension is forward-compatible
+and follows current best practices.
+
+---
+
+### `content.js`
+Injected into every Gmail page. Its sole responsibility
+is reading the Gmail DOM.
+
+**Why Gmail DOM extraction is complex:**
+Gmail is a single-page application that dynamically
+renders email content using JavaScript. It does not
+use simple static HTML that can be parsed with a URL.
+The actual email content lives in deeply nested div
+elements with dynamic class names that change between
+Gmail versions.
+
+The content script tries multiple CSS selectors in
+priority order — if the first one fails, it falls back
+to the next. This makes the extraction robust against
+Gmail UI updates.
+
+**Gmail redirect URL decoding:**
+When Gmail renders links in emails it wraps them in
+`https://www.google.com/url?q=<real_url>` redirect
+URLs. The content script detects these wrappers and
+extracts the real destination URL using the
+`URLSearchParams` API. This is critical — without this
+step, VirusTotal would scan the Google redirect URL
+rather than the actual phishing destination.
+
+**MutationObserver:**
+The DOM observer watches for changes in the main Gmail
+area and fires a `newEmailDetected` message to the
+background service worker whenever a new email is
+opened. This enables the auto-scan feature to trigger
+analysis without the user having to click the scan
+button manually.
+
+---
+
+### `background.js`
+The service worker that acts as the central coordinator
+for the extension.
+
+**Why a service worker:**
+MV3 requires background pages to be implemented as
+service workers. A service worker is a JavaScript
+file that runs in the background independent of any
+open tab or popup. It starts on demand and terminates
+when idle, which is more resource-efficient than a
+persistent background page.
+
+**Timeout handling:**
+`fetchWithTimeout()` wraps every API call with an
+`AbortController`. The main analysis call has a
+2-minute timeout because VirusTotal URL scanning
+involves multiple HTTP round trips with polling delays
+between them. A 10-second timeout would cause most
+scans to fail. The timeout error message explains this
+to the user clearly.
+
+**Scan history:**
+Each completed scan is saved to `chrome.storage.local`
+as a history entry containing the verdict, score,
+sender, subject, IOC count, and report URL. The history
+is capped at 50 entries to prevent unbounded storage
+growth. This means the user can review their most
+recent 50 email scans directly from the extension.
+
+**Notifications:**
+For malicious emails, Chrome notifications are sent
+with `requireInteraction: true` which keeps the
+notification visible until the user explicitly
+dismisses it. For suspicious emails the notification
+auto-dismisses. This distinction matches the urgency
+level of each verdict.
+
+---
+
+### `popup.html` and `popup.css`
+The extension popup is a 420px wide constrained UI
+that renders inside Chrome's extension popup window.
+
+**Dark cybersecurity theme:**
+The UI uses a dark color scheme (`#0D1117` background)
+modeled on GitHub's dark theme and common security
+tool interfaces. This was chosen deliberately —
+security professionals typically work in dark-themed
+environments and the visual language of the tool
+should match its domain.
+
+**CSS variables:**
+All colors, spacing, and border radii are defined as
+CSS custom properties (variables). This means the
+entire theme can be changed by editing the `:root`
+block in popup.css — no searching for hardcoded hex
+values throughout the file.
+
+**Collapsible cards:**
+Each section of the results is rendered as a
+collapsible card. This is necessary because the full
+result set — verdict, email metadata, auth headers,
+ML scores, flags, IOCs, URL results, triggered rules,
+actions, and report — would be far too long to display
+at once in a 650px max-height popup. Cards let the
+user expand exactly the sections they care about.
+
+---
 
