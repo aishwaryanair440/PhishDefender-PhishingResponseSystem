@@ -1,1 +1,30 @@
+=======================================================
+4.1 — Email Dataset Preprocessing
+=======================================================
+Dropped columns  : ['sender', 'receiver', 'date', 'urls', 'source']
+Nulls after fill : {'subject': 0, 'body': 0, 'label': 0, 'body_length': 0, 'subject_length': 0}
 
+Sample cleaned text (row 0):
+never agree to be a loser never agree to be a loser buck up your troubles caused by small dimension will soon be over become a lover no woman will be able to resist urltoken come even as nazi tanks were rolling down the streets the dreamersphilosopher or a journalist he was still not sure i do the s
+
+Duplicates removed : 9,863
+Rows after dedup   : 155,109
+Rows after empty   : 155,108
+
+Final label distribution (email):
+label
+1    79103
+0    76005
+Name: count, dtype: int64
+
+Final label % split:
+label
+1    51.0
+0    49.0
+Name: proportion, dtype: float64
+...
+  email_clean     — cleaned email dataframe
+  X_url_scaled    — scaled URL features
+  y_url           — URL labels
+  scaler          — fitted StandardScaler (needed for Section 9 save)
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
