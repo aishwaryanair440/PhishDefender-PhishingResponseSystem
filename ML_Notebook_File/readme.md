@@ -95,3 +95,19 @@ Both datasets split 80/20 using `train_test_split` with
 test sets. All 4 label ratios confirmed within 1% of
 the overall distribution.
 
+### Section 7 — Model Training (GPU Accelerated)
+Three models trained per dataset:
+- Logistic Regression (CPU baseline)
+- Random Forest (CPU ensemble)
+- XGBoost with `device='cuda'` (GPU)
+- LightGBM with `device='gpu'` (GPU)
+
+**Why LightGBM won:**
+LightGBM with GPU acceleration outperformed all other
+models on both datasets. It handles sparse matrices
+natively, supports early stopping to prevent
+overfitting, and trains an order of magnitude faster
+than scikit-learn's GradientBoostingClassifier on
+large datasets.
+
+
