@@ -131,5 +131,24 @@ regularization terms that prevent overfitting.
 samples. Early stopping with `stopping_rounds=20`
 halts training when validation score stops improving.
 
+### Section 8 — Model Evaluation
+6 evaluation parameters:
+1. **Core metrics** (Accuracy, Precision, Recall, F1,
+   ROC-AUC, Average Precision) with train vs test
+   comparison and explicit overfitting gap measurement
+2. **Confusion matrix** with TN, FP, FN, TP annotated
+3. **ROC curve** with AUC score
+4. **Precision-Recall curve** with average precision
+5. **Feature importance** by gain — top 25 features
+6. **Prediction probability distribution** showing
+   model confidence and class separation
 
+**Final model performance:**
+
+| Model | Dataset | F1 Score | Accuracy |
+|-------|---------|----------|----------|
+| LightGBM | Email | 0.9893 | 0.9890 |
+| LightGBM | URL | 0.9886 | 0.9890 |
+| XGBoost | Email | 0.9671 | 0.9658 |
+| XGBoost | URL | 0.9875 | 0.9880 |
 
