@@ -9,12 +9,16 @@ All required libraries loaded including `lightgbm`,
 `xgboost`, `sklearn`, `scipy`, and `joblib`.
 Display settings configured for wide dataframes.
 
+---
+
 ### Section 2 — Load Dataset
 All 7 email CSV files loaded and standardized to a
 common schema using a `standardize()` function that
 fills missing columns with NaN. The URL dataset is
 loaded separately. Both datasets get a consistent
 `label` column (0 = legitimate, 1 = phishing).
+
+---
 
 ### Section 3 — Exploratory Data Analysis (EDA)
 10 EDA subsections covering label distributions,
@@ -23,6 +27,8 @@ distributions, URL feature correlations, missing value
 heatmaps, phishing keyword frequency analysis, and top
 URL feature distributions by label. All charts saved
 as PNG files.
+
+---
 
 ### Section 4 — Preprocessing
 **Email dataset:**
@@ -43,6 +49,8 @@ as PNG files.
 - Applied `StandardScaler` to all 47 features
 - Removed 419 duplicate rows
 - Final: 9,581 rows, 47 features
+
+---
 
 ### Section 5 — Feature Engineering
 **Email model features:**
@@ -89,11 +97,15 @@ terms that capture compound phishing signals:
 
 Final URL feature matrix: 9,581 × 50.
 
+---
+
 ### Section 6 — Train-Test Split
 Both datasets split 80/20 using `train_test_split` with
 `stratify` to preserve class balance in both train and
 test sets. All 4 label ratios confirmed within 1% of
 the overall distribution.
+
+---
 
 ### Section 7 — Model Training (GPU Accelerated)
 Three models trained per dataset:
@@ -131,6 +143,8 @@ regularization terms that prevent overfitting.
 samples. Early stopping with `stopping_rounds=20`
 halts training when validation score stops improving.
 
+---
+
 ### Section 8 — Model Evaluation
 6 evaluation parameters:
 1. **Core metrics** (Accuracy, Precision, Recall, F1,
@@ -151,6 +165,8 @@ halts training when validation score stops improving.
 | LightGBM | URL | 0.9886 | 0.9890 |
 | XGBoost | Email | 0.9671 | 0.9658 |
 | XGBoost | URL | 0.9875 | 0.9880 |
+
+---
 
 ### Section 9 — Save Model
 6 files saved to `/kaggle/working/phishing_models/`:
