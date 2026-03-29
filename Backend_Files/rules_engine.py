@@ -558,3 +558,79 @@ def recommend_actions(verdict, triggered_rules):
 
     return list(dict.fromkeys(actions))
 
+# ──────────────────────────────────────────────────────────
+# IOC BUILDER
+# ──────────────────────────────────────────────────────────
+
+def build_ioc_list(parsed_email, threat_intel, ml_scores, triggered_rules):
+    """
+    Builds a consolidated list of Indicators of Compromise
+    from all sources for the incident report
+    """
+    iocs = []
+
+    # Malicious URLs from VirusTotal
+    for url_result in threat_intel.get('url_results', []):
+        if url_result.get('malicious') or url_result.get('suspicious'):
+            iocs.append({
+                'type'      : 'URL',
+                'value'     : url_result.get('url', ''),
+                'source'    : 'VirusTotal',
+                'severity'  : 'critical' if url_result.get('malicious') else 'medium',
+                'detail'    : f"Detected by {url_result.get('malicious_count', 0)} engines"
+            })
+
+    # Malicious IPs
+    for ip_result in threat_intel.get('ip_results', []):
+        if ip_result.get('malicious'):
+            iocs.append({
+                'type'      : 'IP Address',
+                'value'     : ip_result.get('ip', ''),
+                'source'    : 'VirusTotal + AbuseIPDB',
+                'severity'  : 'critical',
+                'detail'    : (
+                    f"Abuse confidence: "
+                    f"{ip_result.get('abuse_confidence', 0)}% | "
+                    f"Country: {ip_result.get('country', 'unknown')}"
+                )
+            })
+
+    # Sender domain
+    sender = parsed_email.get('sender', '')
+    if sender:
+        iocs.append({
+            'type'      : 'Sender',
+            'value'     : sender,
+            'source'    : 'Email header',
+            'severity'  : 'info',
+            'detail'    : 'Originating sender address'
+        })
+
+    # Originating IP
+    origin_ip = parsed_email.get('headers', {}).get('originating_ip')
+    if origin_ip:
+        iocs.append({
+            'type'      : 'Originating IP',
+            'value'     : origin_ip,
+            'source'    : 'Email header',
+            'severity'  : 'info',
+            'detail'    : 'IP extracted from Received header'
+        })
+
+    # High-severity rule triggers as IOCs
+    critical_rules = [
+        r for r in triggered_rules
+        if r.get('severity') in ('critical', 'high')
+    ]
+    for rule in critical_rules:
+        iocs.append({
+            'type'      : 'Behavioral IOC',
+            'value'     : rule['rule'],
+            'source'    : 'Rules Engine',
+            'severity'  : rule['severity'],
+            'detail'    : rule['description']
+        })
+
+    return iocs
+
+
