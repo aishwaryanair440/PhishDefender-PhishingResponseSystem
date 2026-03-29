@@ -167,5 +167,133 @@ def run_ml_classifier(parsed_email):
 
     return results
 
+# ──────────────────────────────────────────────────────────
+# EMAIL MODEL PREDICTION
+# ──────────────────────────────────────────────────────────
+
+def predict_email(parsed_email):
+    """
+    Prepares email features and runs the LightGBM email model
+    Mirrors the exact feature engineering from the notebook
+    """
+    subject = parsed_email.get('subject', '')
+    body    = parsed_email.get('body', '')
+
+    # ── Step 1: Clean text (mirrors notebook pipeline) ────
+    cleaned_text = clean_text_for_ml(subject, body)
+
+    # ── Step 2: TF-IDF features ───────────────────────────
+    tfidf_features = _tfidf.transform([cleaned_text]).astype('float32')
+
+    # ── Step 3: Hand-crafted features ─────────────────────
+    hand_features  = extract_hand_features(subject, body, parsed_email)
+    hand_sparse    = sp.csr_matrix(
+        np.array(hand_features).reshape(1, -1).astype('float32')
+    )
+
+    # ── Step 4: Stack into combined feature matrix ────────
+    combined = sp.hstack([tfidf_features, hand_sparse]).astype('float32')
+
+    # ── Step 5: Predict ───────────────────────────────────
+    prob = _email_model.predict(combined)
+
+    # LightGBM returns array — extract scalar
+    return float(prob[0]) if hasattr(prob, '__len__') else float(prob)
+
+
+def clean_text_for_ml(subject, body):
+    """
+    Exact replication of cleaning pipeline used in notebook
+    Subject repeated twice to give it more weight
+    """
+    text = subject + ' ' + subject + ' ' + body
+    text = text.lower()
+    text = re.sub(r'http\S+|www\S+',    ' urltoken ',   text)
+    text = re.sub(r'[\w\.-]+@[\w\.-]+', ' emailtoken ', text)
+    text = re.sub(r'\d+',               ' numtoken ',   text)
+    text = re.sub(r'[^a-z\s]',          ' ',            text)
+    text = re.sub(r'\s+',               ' ',            text).strip()
+    return text
+
+
+def extract_hand_features(subject, body, parsed_email):
+    """
+    Extracts the exact 13 hand-crafted features
+    used during training in the notebook
+    Order must match exactly
+    """
+    urls    = parsed_email.get('urls', [])
+    feats   = parsed_email.get('text_features', {})
+
+    # 1. url_count
+    url_count = len(urls)
+
+    # 2. email_count
+    email_count = len(re.findall(r'[\w\.-]+@[\w\.-]+', body))
+
+    # 3. num_count
+    num_count = len(re.findall(r'\d+', body))
+
+    # 4. body_length
+    body_length = len(body)
+
+    # 5. subject_length
+    subject_length = len(subject)
+
+    # 6. word_count
+    words      = body.split()
+    word_count = len(words)
+
+    # 7. avg_word_length
+    avg_word_length = (
+        sum(len(w) for w in words) / len(words)
+        if words else 0.0
+    )
+
+    # 8. exclamation_count
+    exclamation_count = body.count('!')
+
+    # 9. question_count
+    question_count = body.count('?')
+
+    # 10. capital_ratio
+    capital_ratio = (
+        sum(1 for c in body if c.isupper()) / max(len(body), 1)
+    )
+
+    # 11. keyword_count
+    body_lower    = body.lower()
+    keyword_count = sum(
+        1 for kw in PHISHING_KEYWORDS
+        if kw in body_lower
+    )
+
+    # 12. suspicious_subject
+    subject_lower      = subject.lower()
+    suspicious_subject = int(
+        any(kw in subject_lower for kw in SUBJECT_KEYWORDS)
+    )
+
+    # 13. has_html
+    has_html = int(
+        bool(re.search(r'<[^>]+>', body))
+    )
+
+    # Return in exact same order as notebook
+    return [
+        url_count,
+        email_count,
+        num_count,
+        body_length,
+        subject_length,
+        word_count,
+        avg_word_length,
+        exclamation_count,
+        question_count,
+        capital_ratio,
+        keyword_count,
+        suspicious_subject,
+        has_html
+    ]
 
 
