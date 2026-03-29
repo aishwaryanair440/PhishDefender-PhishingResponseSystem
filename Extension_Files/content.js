@@ -203,4 +203,138 @@ function extractBody(container) {
     return '';
 }
 
+// ──────────────────────────────────────────────────────────
+// HEADER EXTRACTION
+// ──────────────────────────────────────────────────────────
 
+function extractHeaders(container) {
+    const headers = {};
+
+    try {
+        // ── SPF / DKIM / DMARC ────────────────────────────
+        // Gmail shows authentication results in the
+        // "Show original" view but we can infer from
+        // security warnings and visible indicators
+
+        // Check for Gmail security warning icons
+        const securityIcons = document.querySelectorAll(
+            '.a3s [data-tooltip*="security"], ' +
+            '.a3s [title*="security"], ' +
+            'img[src*="security"]'
+        );
+
+        // Check for muted sender warning
+        const mutedWarning = document.querySelector(
+            '.adn.ads'
+        );
+
+        // Check for phishing warning banner
+        const phishingBanner = document.querySelector(
+            '[data-message-id] .bBe, ' +
+            '.J-K8-K8-KF-KF, ' +
+            '.phishing-warning'
+        );
+
+        if (phishingBanner) {
+            headers.gmail_phishing_warning = true;
+        }
+
+        // ── Extract from "Show original" if available ──────
+        // Try to get auth results from visible header details
+        const detailsBtn = document.querySelector(
+            '.T-I.J-J5-Ji.aav.T-I-ax7'
+        );
+
+        // ── Sender details ────────────────────────────────
+        // Extract via-domain (indicates spoofing potential)
+        const viaDomain = document.querySelector(
+            '.go .ml'
+        );
+        if (viaDomain) {
+            headers.via_domain = viaDomain.textContent
+                ?.replace('via', '').trim();
+        }
+
+        // ── Reply-To extraction ───────────────────────────
+        const showDetails = document.querySelector(
+            '.ajx, .adn'
+        );
+        if (showDetails) {
+            const detailText = showDetails.textContent || '';
+
+            // Extract Reply-To if visible
+            const replyToMatch = detailText.match(
+                /reply-to[:\s]+([^\s,<>]+@[^\s,<>]+)/i
+            );
+            if (replyToMatch) {
+                headers['reply-to'] = replyToMatch[1].trim();
+            }
+
+            // Extract Received (for IP)
+            const receivedMatch = detailText.match(
+                /received[:\s]+.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/i
+            );
+            if (receivedMatch) {
+                headers['received'] = receivedMatch[0];
+            }
+        }
+
+        // ── Try expanded header panel ─────────────────────
+        const headerPanel = document.querySelector(
+            '.header-detail, .expanded-header'
+        );
+        if (headerPanel) {
+            const headerText = headerPanel.textContent || '';
+            parseAuthHeaders(headerText, headers);
+        }
+
+        // ── Gmail security indicators ─────────────────────
+        // Red lock icon = encryption issue
+        const redLock = document.querySelector(
+            'img[src*="lock_open"], ' +
+            '.T-I-J3[aria-label*="not encrypted"]'
+        );
+        if (redLock) {
+            headers.encryption_warning = true;
+        }
+
+    } catch (e) {
+        console.warn('[content] Header extraction error:', e);
+    }
+
+    return headers;
+}
+
+function parseAuthHeaders(text, headers) {
+    // SPF
+    const spfMatch = text.match(
+        /spf[=:\s]+(pass|fail|neutral|softfail|none)/i
+    );
+    if (spfMatch) {
+        headers['received-spf'] = spfMatch[0];
+    }
+
+    // DKIM
+    const dkimMatch = text.match(
+        /dkim[=:\s]+(pass|fail|neutral|none)/i
+    );
+    if (dkimMatch) {
+        headers['dkim-signature'] = dkimMatch[0];
+    }
+
+    // DMARC
+    const dmarcMatch = text.match(
+        /dmarc[=:\s]+(pass|fail|none)/i
+    );
+    if (dmarcMatch) {
+        headers['authentication-results'] = dmarcMatch[0];
+    }
+
+    // Originating IP
+    const ipMatch = text.match(
+        /\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/
+    );
+    if (ipMatch) {
+        headers['received'] = ipMatch[0];
+    }
+}
