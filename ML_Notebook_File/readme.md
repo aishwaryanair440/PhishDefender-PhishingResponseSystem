@@ -24,5 +24,25 @@ heatmaps, phishing keyword frequency analysis, and top
 URL feature distributions by label. All charts saved
 as PNG files.
 
+### Section 4 — Preprocessing
+**Email dataset:**
+- Dropped high-null columns (sender, receiver, date,
+  urls — all 70%+ null)
+- Filled remaining nulls with empty strings
+- Combined subject (repeated twice for weight) + body
+  into a single `text` field
+- Applied text cleaning pipeline: lowercase, URL tokens,
+  email tokens, number tokens, special character removal
+- Removed 9,863 duplicate rows
+- Final: 155,108 rows
+
+**URL dataset:**
+- Dropped `HttpsInHostname` (constant column,
+  zero variance)
+- No high-correlation pairs found above 0.95 threshold
+- Applied `StandardScaler` to all 47 features
+- Removed 419 duplicate rows
+- Final: 9,581 rows, 47 features
+
 
 
