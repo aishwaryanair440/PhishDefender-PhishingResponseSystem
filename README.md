@@ -90,3 +90,54 @@ real-time phishing detection system that:
   emerge
 
 ---
+## 2. Proposed Solution
+
+This project proposes a full-stack AI-powered phishing
+detection platform delivered as a Chrome browser
+extension with a Python backend.
+
+The core philosophy of the solution is
+**defence in depth** — rather than relying on any single
+detection method, the platform layers five independent
+detection signals and combines them into a unified
+threat score:
+
+| Layer | Method | Signal Type |
+|-------|--------|-------------|
+| 1 | Email header analysis | SPF, DKIM, DMARC, Reply-To |
+| 2 | LightGBM email classifier | NLP + text features |
+| 3 | LightGBM URL classifier | Structural URL features |
+| 4 | VirusTotal API | External threat intelligence |
+| 5 | AbuseIPDB API | IP reputation intelligence |
+
+The five signals are then fed into a rule-based triage
+engine that assigns weighted scores to each signal and
+produces a final verdict of **Malicious**,
+**Suspicious**, or **Benign** with a score from 0 to 100.
+
+For malicious and suspicious emails the platform
+automatically generates a professional PDF incident
+report containing all identified Indicators of
+Compromise (IOCs), the full rule trace, ML model
+confidence scores, and recommended response actions —
+exactly the kind of output a real SOC analyst would
+produce after investigating a phishing alert.
+
+The architecture is deliberately split into two layers:
+
+- **Browser Extension (JavaScript)** — a thin layer that
+  reads the open email from the Gmail DOM and displays
+  results. It contains no ML logic and no API keys.
+- **Python Backend (Flask)** — handles all intelligence
+  processing including ML inference, API calls, rule
+  evaluation, and report generation. This is where the
+  real work happens and where all sensitive credentials
+  are stored.
+
+This split architecture means the extension itself is
+lightweight, fast, and secure — it simply reads and
+displays. All the heavy computation runs on the Python
+side which can be improved, extended, or replaced
+without touching the extension code.
+
+---
