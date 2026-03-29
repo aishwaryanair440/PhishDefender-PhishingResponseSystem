@@ -88,3 +88,10 @@ terms that capture compound phishing signals:
 - `ip_x_urllength`: IpAddress × UrlLength
 
 Final URL feature matrix: 9,581 × 50.
+
+### Section 6 — Train-Test Split
+Both datasets split 80/20 using `train_test_split` with
+`stratify` to preserve class balance in both train and
+test sets. All 4 label ratios confirmed within 1% of
+the overall distribution.
+
