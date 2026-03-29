@@ -384,3 +384,61 @@ function extractURLsFromBody(bodyText) {
         .slice(0, 20); // Cap at 20 URLs
 }
 
+// ──────────────────────────────────────────────────────────
+// GMAIL DOM OBSERVER
+// Watches for Gmail navigation to new emails
+// ──────────────────────────────────────────────────────────
+
+let lastMessageId   = null;
+let observer        = null;
+
+function startDOMObserver() {
+    if (observer) observer.disconnect();
+
+    observer = new MutationObserver((mutations) => {
+        for (const mutation of mutations) {
+            if (mutation.type === 'childList') {
+
+                // Check if a new email was opened
+                const messageEl = document.querySelector(
+                    '[data-message-id]'
+                );
+                if (messageEl) {
+                    const messageId = messageEl.getAttribute(
+                        'data-message-id'
+                    );
+                    if (messageId && messageId !== lastMessageId) {
+                        lastMessageId = messageId;
+                        notifyNewEmail();
+                    }
+                }
+            }
+        }
+    });
+
+    const target = document.querySelector(
+        'div[role="main"]'
+    ) || document.body;
+
+    observer.observe(target, {
+        childList   : true,
+        subtree     : true
+    });
+
+    console.log('[content] DOM observer started');
+}
+
+function notifyNewEmail() {
+    // Notify background.js that a new email was opened
+    chrome.runtime.sendMessage({
+        action  : 'newEmailDetected',
+        url     : window.location.href
+    }).catch(() => {
+        // Background might not be listening — safe to ignore
+    });
+}
+
+// Start observer when content script loads
+startDOMObserver();
+
+console.log('[content] Phishing Detector content script loaded on Gmail');
