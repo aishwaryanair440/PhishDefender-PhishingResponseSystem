@@ -644,4 +644,26 @@ failure — it simply records the error and continues
 with whatever data it has.
 
 ---
+### `rules_engine.py`
+The decision-making core of the platform. Takes outputs
+from all other modules and combines them into a final
+verdict.
 
+**Why rule-based on top of ML:**
+ML models produce probabilities, not verdicts. A 0.73
+phishing probability from the email model alone might
+not be enough to block an email. But if that same email
+also has a malicious URL confirmed by VirusTotal, a
+failed DKIM check, and an IP flagged by AbuseIPDB —
+the combined signal is unambiguous. The rules engine
+makes these combinations explicit and auditable.
+
+**Scoring architecture:**
+```
+Header rules    → up to 53 points
+URL rules       → up to 80 points
+IP rules        → up to 75 points
+Text rules      → up to 23 points
+ML rules        → up to 60 points
+                   Total capped at 100
+```
