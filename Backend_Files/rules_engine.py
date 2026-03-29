@@ -5,4 +5,11 @@
 # and ML scores into a final unified threat decision
 # ============================================================
 
+from config import (
+    THRESHOLD_MALICIOUS,
+    THRESHOLD_SUSPICIOUS,
+    PHISHING_KEYWORDS,
+    SUBJECT_KEYWORDS
+)
+
 
