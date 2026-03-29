@@ -271,3 +271,63 @@ def scan_ip_virustotal(ip):
 
     return _vt_error("Max retries exceeded")
 
+# ──────────────────────────────────────────────────────────
+# ABUSEIPDB — IP SCANNING
+# ──────────────────────────────────────────────────────────
+
+def scan_ip_abuseipdb(ip):
+    """
+    Queries AbuseIPDB for IP abuse confidence score
+    Returns abuse confidence percentage and metadata
+    """
+    headers = {
+        'Key'   : ABUSEIPDB_API_KEY,
+        'Accept': 'application/json'
+    }
+    params  = {
+        'ipAddress'     : ip,
+        'maxAgeInDays'  : 90,
+        'verbose'       : True
+    }
+
+    for attempt in range(RETRY_ATTEMPTS):
+        try:
+            response = requests.get(
+                ABUSEIPDB_URL,
+                headers = headers,
+                params  = params,
+                timeout = REQUEST_TIMEOUT
+            )
+
+            if response.status_code == 200:
+                data = response.json().get('data', {})
+                return {
+                    'abuse_confidence': data.get('abuseConfidenceScore', 0),
+                    'country'         : data.get('countryCode', 'unknown'),
+                    'isp'             : data.get('isp', 'unknown'),
+                    'domain'          : data.get('domain', 'unknown'),
+                    'total_reports'   : data.get('totalReports', 0),
+                    'last_reported'   : data.get('lastReportedAt', None),
+                    'is_tor'          : data.get('isTor', False),
+                    'error'           : None
+                }
+
+            elif response.status_code == 429:
+                print(f"[threat_intel] AbuseIPDB rate limit, waiting 60s...")
+                time.sleep(60)
+                continue
+
+            elif response.status_code == 422:
+                return _abuse_error("Invalid IP address format")
+
+            else:
+                return _abuse_error(f"HTTP {response.status_code}")
+
+        except requests.exceptions.Timeout:
+            return _abuse_error("Request timed out")
+        except requests.exceptions.ConnectionError:
+            return _abuse_error("Connection error")
+        except Exception as e:
+            return _abuse_error(str(e))
+
+    return _abuse_error("Max retries exceeded")
