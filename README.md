@@ -935,3 +935,123 @@ user expand exactly the sections they care about.
 
 ---
 
+### `popup.js`
+All dynamic rendering logic for the popup UI.
+
+**XSS prevention:**
+Every string from the API response is passed through
+`escapeHtml()` before being inserted into the DOM.
+This prevents a malicious email from injecting
+JavaScript into the extension popup by crafting a
+subject line or sender name containing script tags.
+
+**Result persistence:**
+The last scan result is saved to
+`chrome.storage.local` by the background service
+worker and loaded by popup.js on every popup open.
+This means the results survive popup close/reopen
+cycles — the user does not lose their scan results
+just by clicking elsewhere.
+
+**Animated score bars:**
+ML probability bars animate to their final width with
+a CSS transition. The animation is delayed 150ms to
+ensure the DOM has fully rendered before the width
+change triggers. Without the delay the transition
+does not play because the element goes from 0 to the
+final width before the browser has a chance to paint.
+
+---
+
+### `popup.js`
+All dynamic rendering logic for the popup UI.
+
+**XSS prevention:**
+Every string from the API response is passed through
+`escapeHtml()` before being inserted into the DOM.
+This prevents a malicious email from injecting
+JavaScript into the extension popup by crafting a
+subject line or sender name containing script tags.
+
+**Result persistence:**
+The last scan result is saved to
+`chrome.storage.local` by the background service
+worker and loaded by popup.js on every popup open.
+This means the results survive popup close/reopen
+cycles — the user does not lose their scan results
+just by clicking elsewhere.
+
+**Animated score bars:**
+ML probability bars animate to their final width with
+a CSS transition. The animation is delayed 150ms to
+ensure the DOM has fully rendered before the width
+change triggers. Without the delay the transition
+does not play because the element goes from 0 to the
+final width before the browser has a chance to paint.
+
+---
+
+## 10. API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/ping` | Health check — confirms server is running |
+| POST | `/analyze` | Main analysis endpoint |
+| GET | `/report/<filename>` | Download PDF report |
+| GET | `/reports` | List all generated reports |
+| GET | `/status` | Detailed server status and config |
+
+### POST `/analyze` — Request Body
+```json
+{
+    "subject"   : "URGENT: Verify your account",
+    "body"      : "Click here to verify...",
+    "sender"    : "security@paypa1.com",
+    "receiver"  : "user@gmail.com",
+    "headers"   : {
+        "received-spf"           : "fail",
+        "dkim-signature"         : "fail",
+        "authentication-results" : "dmarc=fail"
+    },
+    "urls"      : ["http://paypa1.com/verify"],
+    "timestamp" : "2025-01-01T12:00:00.000Z",
+    "source"    : "gmail"
+}
+```
+
+### POST `/analyze` — Response Body
+```json
+{
+    "verdict"       : "malicious",
+    "threat_score"  : 85,
+    "summary"       : "MALICIOUS — This email is a phishing attempt...",
+    "email"         : { "sender": "...", "url_count": 2, "flags": [] },
+    "ml"            : {
+        "email_probability"   : 0.9823,
+        "url_probability"     : 0.9741,
+        "combined_probability": 0.9798
+    },
+    "threat_intel"  : {
+        "malicious_url_count" : 1,
+        "malicious_ip_count"  : 1,
+        "url_results"         : [],
+        "ip_results"          : []
+    },
+    "rules"         : {
+        "triggered" : [],
+        "score_breakdown": {},
+        "actions"   : []
+    },
+    "iocs"          : [],
+    "headers"       : { "spf": "fail", "dkim": "fail", "dmarc": "fail" },
+    "report"        : {
+        "generated"    : true,
+        "download_url" : "http://127.0.0.1:5000/report/phishing_report_20250101_120000.pdf",
+        "filename"     : "phishing_report_20250101_120000.pdf"
+    }
+}
+```
+
+---
+
+
