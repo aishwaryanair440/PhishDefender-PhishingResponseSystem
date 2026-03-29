@@ -80,4 +80,11 @@ Two complementary feature sets are built and stacked:
    single sparse matrix of 155,108 × 5,013 using
    `scipy.sparse.hstack`.
 
+  **URL model features:**
+The 47 scaled features are extended with 3 interaction
+terms that capture compound phishing signals:
+- `url_x_subdomain`: UrlLength × SubdomainLevel
+- `nohttps_x_sensitive`: NoHttps × NumSensitiveWords
+- `ip_x_urllength`: IpAddress × UrlLength
 
+Final URL feature matrix: 9,581 × 50.
