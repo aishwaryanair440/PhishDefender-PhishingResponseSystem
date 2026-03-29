@@ -16,5 +16,13 @@ fills missing columns with NaN. The URL dataset is
 loaded separately. Both datasets get a consistent
 `label` column (0 = legitimate, 1 = phishing).
 
+### Section 3 — Exploratory Data Analysis (EDA)
+10 EDA subsections covering label distributions,
+source file breakdown, body and subject length
+distributions, URL feature correlations, missing value
+heatmaps, phishing keyword frequency analysis, and top
+URL feature distributions by label. All charts saved
+as PNG files.
+
 
 
