@@ -199,3 +199,47 @@ without touching the extension code.
 ```
 
 ---
+## 4. Project Structure
+```
+phishing-detector/
+│
+├── icons/                      # Extension icons
+│   ├── icon16.png
+│   ├── icon48.png
+│   └── icon128.png
+│
+├── reports/                    # Auto-generated PDF reports
+│
+├── Model files (from Kaggle notebook)
+│   ├── email_model.pkl         # Trained LightGBM email classifier
+│   ├── url_model.pkl           # Trained LightGBM URL classifier
+│   ├── tfidf_vectorizer.pkl    # Fitted TF-IDF vectorizer
+│   ├── scaler.pkl              # Fitted StandardScaler
+│   ├── url_feature_names.pkl   # URL feature column names
+│   └── model_metadata.json     # Model performance metrics
+│
+├── Config / Support
+│   ├── config.py               # API keys, paths, thresholds
+│   └── requirements.txt        # Python dependencies
+│
+├── Python Backend
+│   ├── app.py                  # Flask server, main entry point
+│   ├── email_parser.py         # Email parsing and feature extraction
+│   ├── threat_intel.py         # VirusTotal and AbuseIPDB API calls
+│   ├── rules_engine.py         # Rule-based triage and scoring
+│   ├── ml_classifier.py        # ML model loading and inference
+│   └── report_generator.py     # PDF incident report generation
+│
+├── Chrome Extension
+│   ├── manifest.json           # Extension configuration (MV3)
+│   ├── popup.html              # Extension popup UI structure
+│   ├── popup.css               # Dark cybersecurity theme styles
+│   ├── popup.js                # Popup UI logic and rendering
+│   ├── content.js              # Gmail DOM extraction script
+│   └── background.js           # Service worker, API bridge
+│
+└── ML Notebook (Kaggle)
+    └── phishing_model.ipynb    # Full ML pipeline notebook
+```
+
+---
