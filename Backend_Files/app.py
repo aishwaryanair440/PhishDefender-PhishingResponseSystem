@@ -26,3 +26,19 @@ from ml_classifier     import run_ml_classifier, load_models
 from rules_engine      import run_rules_engine
 from report_generator  import generate_report
 
+# ──────────────────────────────────────────────────────────
+# APP INITIALIZATION
+# ──────────────────────────────────────────────────────────
+
+app = Flask(__name__)
+
+# Allow requests from Chrome extension
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "chrome-extension://*",
+            "http://localhost:*",
+            "http://127.0.0.1:*"
+        ]
+    }
+})
