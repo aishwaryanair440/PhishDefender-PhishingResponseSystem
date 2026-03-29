@@ -59,6 +59,7 @@ Two complementary feature sets are built and stacked:
 
 2. **Hand-crafted features (13):** These capture signal
    that pure text frequency cannot detect:
+   
  | Feature | Purpose |
    |---------|---------|
    | url_count | Phishing emails often embed many links |
