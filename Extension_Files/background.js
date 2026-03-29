@@ -337,5 +337,18 @@ async function clearHistory() {
     console.log('[background] History cleared');
 }
 
+// ──────────────────────────────────────────────────────────
+// SETTINGS
+// ──────────────────────────────────────────────────────────
+
+async function getSettings() {
+    const stored    = await chrome.storage.local.get('settings');
+    return stored.settings || {
+        autoScan            : false,
+        notifications       : true,
+        reportOnSuspicious  : true
+    };
+}
+
 
 
