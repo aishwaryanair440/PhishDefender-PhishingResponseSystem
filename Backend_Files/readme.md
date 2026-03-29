@@ -139,5 +139,48 @@ ML rules        → up to 60 points
 - 0-39 → Benign
 
 ---
+### `ml_classifier.py`
+Loads all model files once at server startup and keeps
+them in module-level memory. This is a critical
+performance optimization — loading LightGBM models
+from disk takes several seconds. If they were loaded on
+every request the server would be unusably slow.
+
+**Email model inference pipeline:**
+1. Clean text using `clean_text_for_ml()` — exact
+   replica of notebook preprocessing
+2. Transform cleaned text through the loaded TF-IDF
+   vectorizer to get a sparse matrix of 5,000 features
+3. Extract all 13 hand-crafted features in the exact
+   same order used during training
+4. Stack TF-IDF sparse matrix + hand features into one
+   5,013-wide sparse matrix
+5. Pass to LightGBM for prediction
+6. Return phishing probability as float
+
+**URL model inference pipeline:**
+1. Map parsed URL object fields to the 50 column names
+   from the training dataset
+2. Build a pandas DataFrame with exactly those columns
+   in exactly the right order
+3. Scale using the loaded StandardScaler
+4. Pass to LightGBM for prediction
+5. Return phishing probability as float
+
+**Score combination:**
+When URLs are present the two probabilities are combined
+as a weighted average: 60% email + 40% URL. The email
+model gets higher weight because it has more context —
+it sees the full message, not just one link. When no
+URLs are found the email model score is used directly.
+
+**Why this weighting:** In practice, phishing emails
+almost always contain malicious links. When a URL is
+present and the URL model scores it highly, that
+corroborates the email model. When no URLs are present,
+the phishing is likely text-based social engineering
+which the email model is specifically trained to detect.
+
+---
 
 
