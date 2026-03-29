@@ -152,3 +152,19 @@ halts training when validation score stops improving.
 | XGBoost | Email | 0.9671 | 0.9658 |
 | XGBoost | URL | 0.9875 | 0.9880 |
 
+### Section 9 — Save Model
+6 files saved to `/kaggle/working/phishing_models/`:
+- `email_model.pkl` — LightGBM email classifier
+- `url_model.pkl` — LightGBM URL classifier
+- `tfidf_vectorizer.pkl` — Fitted TF-IDF vectorizer
+- `scaler.pkl` — Fitted StandardScaler
+- `url_feature_names.pkl` — URL feature column order
+- `model_metadata.json` — Performance metrics and config
+
+A verification step reloads all files from disk and
+runs 5 sample predictions to confirm integrity before
+download. All files are zipped as `phishing_models.zip`
+for easy download from the Kaggle output panel.
+
+---
+
