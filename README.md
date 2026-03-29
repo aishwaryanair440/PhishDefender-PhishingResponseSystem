@@ -243,3 +243,24 @@ phishing-detector/
 ```
 
 ---
+## 5. Tech Stack
+
+### Python Backend
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Python | 3.10+ | Core backend language |
+| Flask | 3.0.3 | REST API server |
+| Flask-CORS | 5.0.0 | Cross-origin requests from extension |
+| LightGBM | 4.5.0 | Primary ML classifier (GPU accelerated) |
+| XGBoost | Latest | Secondary ML classifier (GPU accelerated) |
+| scikit-learn | 1.5.1 | TF-IDF vectorizer, StandardScaler |
+| pandas | 2.2.2 | Data manipulation |
+| numpy | 1.26.4 | Numerical operations |
+| scipy | 1.13.1 | Sparse matrix operations |
+| joblib | 1.4.2 | Model serialization |
+| requests | 2.32.3 | External API calls |
+| BeautifulSoup4 | 4.12.3 | HTML parsing in email bodies |
+| ReportLab | 4.2.2 | PDF incident report generation |
+| python-whois | 0.9.4 | Domain age lookup |
+| dnspython | 2.6.1 | DNS resolution utilities |
