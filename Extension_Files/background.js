@@ -76,3 +76,79 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
+// ──────────────────────────────────────────────────────────
+// CORE — ANALYZE EMAIL
+// ──────────────────────────────────────────────────────────
+
+async function handleAnalyzeEmail(emailData) {
+    console.log('[background] Starting email analysis...');
+
+    // ── Validate input ────────────────────────────────────
+    if (!emailData) {
+        throw new Error('No email data provided');
+    }
+
+    if (!emailData.subject && !emailData.body) {
+        throw new Error(
+            'Email has no subject or body to analyze'
+        );
+    }
+
+    // ── Check server is running ───────────────────────────
+    const serverStatus = await checkServerStatus();
+    if (!serverStatus.online) {
+        throw new Error(
+            'Backend server is offline. ' +
+            'Please run python app.py and try again.'
+        );
+    }
+
+    // ── Send to Flask backend ─────────────────────────────
+    console.log('[background] Sending to Flask backend...');
+
+    const response = await fetchWithTimeout(
+        `${SERVER_URL}/analyze`,
+        {
+            method  : 'POST',
+            headers : { 'Content-Type': 'application/json' },
+            body    : JSON.stringify({
+                subject     : emailData.subject   || '',
+                body        : emailData.body       || '',
+                sender      : emailData.sender     || '',
+                receiver    : emailData.receiver   || '',
+                headers     : emailData.headers    || {},
+                urls        : emailData.urls       || [],
+                timestamp   : emailData.timestamp  || new Date().toISOString(),
+                source      : emailData.source     || 'gmail'
+            })
+        },
+        TIMEOUT_MS
+    );
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+            errorData.error ||
+            `Server returned HTTP ${response.status}`
+        );
+    }
+
+    const result = await response.json();
+
+    console.log(
+        `[background] Analysis complete — ` +
+        `Verdict: ${result.verdict} | ` +
+        `Score: ${result.threat_score}`
+    );
+
+    // ── Save to history ───────────────────────────────────
+    await saveToHistory(emailData, result);
+
+    // ── Send notification if threat detected ──────────────
+    const settings = await getSettings();
+    if (settings.notifications) {
+        await sendNotification(result, emailData);
+    }
+
+    return result;
+}
