@@ -141,3 +141,61 @@ side which can be improved, extended, or replaced
 without touching the extension code.
 
 ---
+## 3. How It Works — Architecture Overview
+```
+┌─────────────────────────────────────────────────────┐
+│                  GMAIL (Browser)                     │
+│                                                     │
+│  User opens email → content.js reads the Gmail DOM  │
+│  Extracts: subject, sender, body, URLs, headers     │
+└────────────────────┬────────────────────────────────┘
+                     │ chrome.runtime.sendMessage
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│              background.js (Service Worker)          │
+│                                                     │
+│  Receives extracted email data                      │
+│  POSTs to Python backend via fetch()                │
+│  Handles timeout, retry, notifications, storage     │
+└────────────────────┬────────────────────────────────┘
+                     │ POST /analyze (JSON)
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│              app.py (Flask Server)                   │
+│                                                     │
+│  Step 1 → email_parser.py                           │
+│           Parse headers, extract URLs, clean text   │
+│                                                     │
+│  Step 2 → ml_classifier.py                         │
+│           LightGBM email model (TF-IDF + features)  │
+│           LightGBM URL model (structural features)  │
+│           Combined probability score                │
+│                                                     │
+│  Step 3 → threat_intel.py                          │
+│           VirusTotal URL scanning                   │
+│           VirusTotal IP reputation                  │
+│           AbuseIPDB IP abuse confidence             │
+│                                                     │
+│  Step 4 → rules_engine.py                          │
+│           Weight all signals → 0-100 threat score   │
+│           Determine verdict (malicious/suspicious)  │
+│           Build IOC list and recommended actions    │
+│                                                     │
+│  Step 5 → report_generator.py (if threat detected)  │
+│           Generate professional PDF incident report  │
+│                                                     │
+│  Returns unified JSON result                        │
+└────────────────────┬────────────────────────────────┘
+                     │ JSON response
+                     ▼
+┌─────────────────────────────────────────────────────┐
+│              popup.js + popup.html                   │
+│                                                     │
+│  Renders verdict banner (red/orange/green)          │
+│  Displays ML scores, IOCs, triggered rules          │
+│  Shows URL scan results and header auth status      │
+│  Provides PDF report download button                │
+└─────────────────────────────────────────────────────┘
+```
+
+---
