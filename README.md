@@ -1415,6 +1415,12 @@ DEALINGS IN THE SOFTWARE.
 demonstrating end-to-end AI-powered threat detection,
 ML engineering, and browser extension development.*
 
-
+--- 
+## **About the Author**
+Himanshu Gaur  
+Cybersecurity Enthusiast & Deep Learning Researcher  
+B.Tech – VIT Bhopal *(Graduating 2027)*  
+ **GitHub:** [https://github.com/Himanshu49Gaur](https://github.com/Himanshu49Gaur)  
+ **LinkedIn:** [https://linkedin.com/in/himanshu-gaur-305006282](https://linkedin.com/in/himanshu-gaur-305006282)
 
 
