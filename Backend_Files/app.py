@@ -42,3 +42,24 @@ CORS(app, resources={
         ]
     }
 })
+
+# ──────────────────────────────────────────────────────────
+# LOAD MODELS ON STARTUP
+# ──────────────────────────────────────────────────────────
+
+print("=" * 55)
+print("Phishing Detector — Backend Server")
+print("=" * 55)
+
+try:
+    load_models()
+    print("[app] Models loaded successfully")
+except Exception as e:
+    print(f"[app] CRITICAL — Model loading failed: {e}")
+    raise
+
+# Ensure reports directory exists
+os.makedirs(REPORT_OUTPUT_DIR, exist_ok=True)
+print(f"[app] Reports directory ready : {REPORT_OUTPUT_DIR}")
+print(f"[app] Server starting on      : http://{FLASK_HOST}:{FLASK_PORT}")
+print("=" * 55)
