@@ -322,3 +322,39 @@ columns as NaN before merging all 7 files into one
 unified dataframe of 155,108 rows after deduplication.
 
 ---
+### Dataset 2 — Phishing URL Feature Dataset
+**Source:** [Kaggle — shashwatwork](https://www.kaggle.com/datasets/shashwatwork/phishing-dataset-for-machine-learning)
+
+| Property | Value |
+|----------|-------|
+| Total rows | 10,000 (9,581 after dedup) |
+| Features | 49 pre-engineered URL features |
+| Label balance | Perfectly 50/50 |
+| Missing values | Zero |
+
+This dataset contains pre-computed structural and
+behavioral features extracted from 10,000 URLs. Unlike
+dataset 1 which is raw text, this dataset is already
+feature-engineered — each column represents a specific
+measurable property of a URL.
+
+**Why this dataset:** Email-based ML models learn from
+the email text but cannot deeply analyze URLs embedded
+in the email. This dataset trains a separate specialized
+URL classifier that scores individual links extracted
+from emails. The two model scores are then combined into
+one unified probability, producing a richer signal than
+either model alone.
+
+**Feature categories include:**
+- Structural: `NumDots`, `SubdomainLevel`, `PathLevel`,
+  `UrlLength`, `NumDash`, `NumDashInHostname`
+- Security: `NoHttps`, `RandomString`, `IpAddress`,
+  `NumSensitiveWords`, `EmbeddedBrandName`
+- Behavioral: `PctExtHyperlinks`, `InsecureForms`,
+  `PopUpWindow`, `RightClickDisabled`, `IframeOrFrame`
+- Ratios: `SubdomainLevelRT`, `UrlLengthRT`,
+  `PctExtResourceUrlsRT`
+
+---
+
