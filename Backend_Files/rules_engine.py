@@ -500,4 +500,61 @@ def evaluate_ml_rules(ml_scores):
 
     return score, rules
 
+# ──────────────────────────────────────────────────────────
+# VERDICT AND ACTIONS
+# ──────────────────────────────────────────────────────────
+
+def determine_verdict(score):
+    """
+    Maps final score to a verdict string
+    Thresholds defined in config.py
+    """
+    if score >= THRESHOLD_MALICIOUS:
+        return 'malicious'
+    elif score >= THRESHOLD_SUSPICIOUS:
+        return 'suspicious'
+    else:
+        return 'benign'
+
+
+def recommend_actions(verdict, triggered_rules):
+    """
+    Recommends actions based on verdict
+    and which rules were triggered
+    """
+    actions = []
+
+    if verdict == 'malicious':
+        actions.append('Block sender immediately')
+        actions.append('Quarantine email')
+        actions.append('Do not click any links')
+        actions.append('Do not download attachments')
+        actions.append('Report to IT security team')
+        actions.append('Generate incident report')
+
+    elif verdict == 'suspicious':
+        actions.append('Exercise caution before clicking links')
+        actions.append('Verify sender identity independently')
+        actions.append('Do not enter credentials on linked pages')
+        actions.append('Consider reporting to IT security team')
+
+    else:
+        actions.append('Email appears safe')
+        actions.append('Standard email precautions apply')
+
+    # Rule-specific additional actions
+    rule_names = [r['rule'] for r in triggered_rules]
+
+    if 'malicious_url' in rule_names:
+        actions.append('Malicious URLs detected — do not visit')
+    if 'malicious_ip' in rule_names:
+        actions.append('Sending server IP is flagged malicious')
+    if 'tor_exit_node' in rule_names:
+        actions.append('Email originated from Tor network')
+    if 'auth_fail_all' in rule_names:
+        actions.append('Email failed all authentication checks')
+    if 'reply_to_mismatch' in rule_names:
+        actions.append('Reply-To mismatch — do not reply to this email')
+
+    return list(dict.fromkeys(actions))
 
