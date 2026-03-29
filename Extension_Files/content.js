@@ -97,3 +97,36 @@ function findEmailContainer() {
     return null;
 }
 
+// ──────────────────────────────────────────────────────────
+// SUBJECT EXTRACTION
+// ──────────────────────────────────────────────────────────
+
+function extractSubject() {
+    const selectors = [
+        'h2[data-thread-perm-id]',
+        'h2.hP',
+        'span[data-thread-perm-id]',
+        'div[role="main"] h2',
+        '.ha h2',
+        'title'
+    ];
+
+    for (const selector of selectors) {
+        const el = document.querySelector(selector);
+        if (el && el.textContent.trim()) {
+            let subject = el.textContent.trim();
+
+            // Remove Gmail prefix like "Inbox" or tab names
+            subject = subject
+                .replace(/^(Inbox|Sent|Drafts|Spam)\s*[-–]\s*/i, '')
+                .replace(/ - Gmail$/, '')
+                .trim();
+
+            if (subject) return subject;
+        }
+    }
+
+    return '';
+}
+
+
