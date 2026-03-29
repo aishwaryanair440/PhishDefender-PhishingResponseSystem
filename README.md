@@ -38,3 +38,55 @@
 20. [License](#20-license)
 
 ---
+## 1. Problem Statement
+
+Phishing attacks remain one of the most prevalent and
+damaging forms of cybercrime worldwide. According to
+industry reports, over 3.4 billion phishing emails are
+sent every single day, and phishing is responsible for
+more than 90% of all data breaches globally.
+
+Despite the existence of spam filters and basic email
+security tools, modern phishing attacks have become
+increasingly sophisticated. Attackers now craft emails
+that:
+
+- Pass SPF, DKIM, and DMARC authentication checks by
+  abusing legitimate email infrastructure
+- Use legitimate URL shorteners and redirect chains to
+  hide malicious destinations from static filters
+- Employ social engineering tactics that exploit urgency,
+  fear, and authority to bypass human judgment
+- Target individuals specifically using information
+  harvested from social media (spear phishing)
+- Deploy payloads with advanced capabilities including
+  keylogging, screen capture, memory inspection, and
+  GUI spoofing
+
+The core problem is that existing solutions operate
+reactively — they either block known bad domains using
+static blocklists, or they rely entirely on human
+judgment which is prone to error under social pressure.
+Neither approach scales well against zero-day phishing
+campaigns that use freshly registered domains and
+never-before-seen payloads.
+
+Additionally, most enterprise-grade phishing detection
+tools are expensive, require complex IT infrastructure,
+and are inaccessible to individual users, small
+organizations, and security students who need to learn
+these concepts hands-on.
+
+There is a clear need for an intelligent, automated,
+real-time phishing detection system that:
+
+- Operates at the point of attack (the inbox itself)
+- Combines multiple detection signals rather than
+  relying on a single method
+- Is accessible and free to deploy
+- Produces actionable, human-readable output including
+  identified IOCs and recommended responses
+- Can be extended and improved as new attack patterns
+  emerge
+
+---
