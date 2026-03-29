@@ -40,3 +40,12 @@ ML_THRESHOLD            = 0.5
 # Final unified threat score thresholds (0-100)
 THRESHOLD_MALICIOUS     = 70
 THRESHOLD_SUSPICIOUS    = 40
+
+# ──────────────────────────────────────────────────────────
+# FLASK SERVER SETTINGS
+# ──────────────────────────────────────────────────────────
+
+FLASK_HOST              = "127.0.0.1"
+FLASK_PORT              = 5000
+FLASK_DEBUG             = False
+
