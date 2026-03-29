@@ -1,0 +1,17 @@
+=======================================================
+9.11 — Zipping All Model Files
+=======================================================
+  Added : url_model.txt
+  Added : url_feature_names.pkl
+  Added : tfidf_vectorizer.pkl
+  Added : email_model.pkl
+  Added : model_metadata.json
+  Added : email_model.txt
+  Added : url_model.pkl
+  Added : scaler.pkl
+
+Zip file created   : /kaggle/working/phishing_models.zip
+Zip file size      : 3.20 MB
+
+Download from Kaggle output panel:
+  /kaggle/working/phishing_models.zip
