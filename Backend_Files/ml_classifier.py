@@ -296,4 +296,109 @@ def extract_hand_features(subject, body, parsed_email):
         has_html
     ]
 
+# ──────────────────────────────────────────────────────────
+# URL MODEL PREDICTION
+# ──────────────────────────────────────────────────────────
+
+def predict_url(url_obj):
+    """
+    Prepares URL features and runs the LightGBM URL model
+    Mirrors the exact feature engineering from the notebook
+    """
+    # ── Step 1: Build URL feature dict ────────────────────
+    url_features = extract_url_features(url_obj)
+
+    # ── Step 2: Build DataFrame with correct column order ─
+    url_df = pd.DataFrame([url_features])
+
+    # Align columns to training feature names
+    # Fill missing columns with 0
+    for col in _url_feat_names:
+        if col not in url_df.columns:
+            url_df[col] = 0
+
+    # Keep only training columns in correct order
+    url_df = url_df[_url_feat_names]
+
+    # ── Step 3: Scale features ────────────────────────────
+    # Use same scaler fitted during training
+    url_scaled = _scaler.transform(url_df).astype('float32')
+
+    # ── Step 4: Predict ───────────────────────────────────
+    prob = _url_model.predict(url_scaled)
+
+    return float(prob[0]) if hasattr(prob, '__len__') else float(prob)
+
+
+def extract_url_features(url_obj):
+    """
+    Extracts URL features matching the training dataset
+    Maps parsed URL object fields to dataset column names
+    """
+    domain  = url_obj.get('domain', '')
+    path    = url_obj.get('path', '')
+    query   = url_obj.get('query', '')
+    raw_url = url_obj.get('raw', '')
+
+    return {
+        'NumDots'                           : domain.count('.'),
+        'SubdomainLevel'                    : max(len(domain.split('.')) - 2, 0),
+        'PathLevel'                         : len([p for p in path.split('/') if p]),
+        'UrlLength'                         : len(raw_url),
+        'NumDash'                           : raw_url.count('-'),
+        'NumDashInHostname'                 : domain.count('-'),
+        'AtSymbol'                          : int('@' in raw_url),
+        'TildeSymbol'                       : int('~' in raw_url),
+        'NumUnderscore'                     : raw_url.count('_'),
+        'NumPercent'                        : raw_url.count('%'),
+        'NumQueryComponents'                : len(query.split('&')) if query else 0,
+        'NumAmpersand'                      : raw_url.count('&'),
+        'NumHash'                           : raw_url.count('#'),
+        'NumNumericChars'                   : sum(c.isdigit() for c in raw_url),
+        'NoHttps'                           : int(not url_obj.get('has_https', True)),
+        'RandomString'                      : int(has_random_string(domain)),
+        'IpAddress'                         : int(url_obj.get('has_ip', False)),
+        'DomainInSubdomains'                : int(has_domain_in_subdomains(domain)),
+        'DomainInPaths'                     : int(has_domain_in_path(path)),
+        'HostnameLength'                    : len(domain),
+        'PathLength'                        : len(path),
+        'QueryLength'                       : len(query),
+        'DoubleSlashInPath'                 : int('//' in path),
+        'NumSensitiveWords'                 : count_sensitive_words(raw_url),
+        'EmbeddedBrandName'                 : int(has_brand_name(raw_url)),
+        'PctExtHyperlinks'                  : 0.0,
+        'PctExtResourceUrls'                : 0.0,
+        'ExtFavicon'                        : 0,
+        'InsecureForms'                     : 0,
+        'RelativeFormAction'                : 0,
+        'ExtFormAction'                     : 0,
+        'AbnormalFormAction'                : 0,
+        'PctNullSelfRedirectHyperlinks'     : 0.0,
+        'FrequentDomainNameMismatch'        : 0,
+        'FakeLinkInStatusBar'               : 0,
+        'RightClickDisabled'                : 0,
+        'PopUpWindow'                       : 0,
+        'SubmitInfoToEmail'                 : 0,
+        'IframeOrFrame'                     : 0,
+        'MissingTitle'                      : 0,
+        'ImagesOnlyInForm'                  : 0,
+        'SubdomainLevelRT'                  : max(len(domain.split('.')) - 2, 0),
+        'UrlLengthRT'                       : int(len(raw_url) > 75),
+        'PctExtResourceUrlsRT'              : 0,
+        'AbnormalExtFormActionR'            : 0,
+        'ExtMetaScriptLinkRT'               : 0,
+        'PctExtNullSelfRedirectHyperlinksRT': 0,
+        # Interaction features added in Section 5
+        'url_x_subdomain'                   : (
+            len(raw_url) * max(len(domain.split('.')) - 2, 0)
+        ),
+        'nohttps_x_sensitive'               : (
+            int(not url_obj.get('has_https', True)) *
+            count_sensitive_words(raw_url)
+        ),
+        'ip_x_urllength'                    : (
+            int(url_obj.get('has_ip', False)) * len(raw_url)
+        )
+    }
+
 
