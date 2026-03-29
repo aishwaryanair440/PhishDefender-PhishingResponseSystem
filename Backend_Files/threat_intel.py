@@ -331,3 +331,99 @@ def scan_ip_abuseipdb(ip):
             return _abuse_error(str(e))
 
     return _abuse_error("Max retries exceeded")
+
+# ──────────────────────────────────────────────────────────
+# HELPERS
+# ──────────────────────────────────────────────────────────
+
+def parse_vt_stats(stats, attributes):
+    """
+    Parses VirusTotal stats block into clean result dict
+    """
+    malicious_count = stats.get('malicious', 0)
+    suspicious_count= stats.get('suspicious', 0)
+    harmless_count  = stats.get('harmless', 0)
+    undetected_count= stats.get('undetected', 0)
+    total           = (
+        malicious_count + suspicious_count +
+        harmless_count  + undetected_count
+    )
+
+    # Extract categories if available
+    categories = list(
+        attributes.get('categories', {}).values()
+    )[:5]
+
+    return {
+        'malicious'         : malicious_count > 0,
+        'suspicious'        : suspicious_count > 0,
+        'malicious_count'   : malicious_count,
+        'suspicious_count'  : suspicious_count,
+        'harmless_count'    : harmless_count,
+        'undetected_count'  : undetected_count,
+        'total_engines'     : total,
+        'detection_ratio'   : f"{malicious_count}/{total}",
+        'categories'        : categories,
+        'error'             : None
+    }
+
+
+def calculate_threat_score(results):
+    """
+    Calculates a unified threat score from 0 to 100
+    based on malicious URL and IP counts
+    """
+    score = 0
+
+    # Each malicious URL adds 25 points (max 75)
+    score += min(results['malicious_url_count'] * 25, 75)
+
+    # Each malicious IP adds 25 points (max 25)
+    score += min(results['malicious_ip_count'] * 25, 25)
+
+    return min(score, 100)
+
+
+def is_valid_ip(ip):
+    """
+    Validates IPv4 address format
+    """
+    pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+    if not re.match(pattern, ip):
+        return False
+    parts = ip.split('.')
+    return all(0 <= int(p) <= 255 for p in parts)
+
+
+def _vt_error(message):
+    """
+    Returns a clean VirusTotal error result
+    """
+    return {
+        'malicious'         : False,
+        'suspicious'        : False,
+        'malicious_count'   : 0,
+        'suspicious_count'  : 0,
+        'harmless_count'    : 0,
+        'undetected_count'  : 0,
+        'total_engines'     : 0,
+        'detection_ratio'   : '0/0',
+        'categories'        : [],
+        'error'             : message
+    }
+
+
+def _abuse_error(message):
+    """
+    Returns a clean AbuseIPDB error result
+    """
+    return {
+        'abuse_confidence'  : 0,
+        'country'           : 'unknown',
+        'isp'               : 'unknown',
+        'domain'            : 'unknown',
+        'total_reports'     : 0,
+        'last_reported'     : None,
+        'is_tor'            : False,
+        'error'             : message
+    }
