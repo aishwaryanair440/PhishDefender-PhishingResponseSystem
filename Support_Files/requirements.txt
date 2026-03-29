@@ -13,3 +13,11 @@ requests==2.32.3
 
 # ── Email parsing ─────────────────────────────────────────
 beautifulsoup4==4.12.3
+
+# ── ML and data ───────────────────────────────────────────
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.5.1
+lightgbm==4.5.0
+joblib==1.4.2
+scipy==1.13.1
