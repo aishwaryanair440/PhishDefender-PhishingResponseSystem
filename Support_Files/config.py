@@ -49,3 +49,11 @@ FLASK_HOST              = "127.0.0.1"
 FLASK_PORT              = 5000
 FLASK_DEBUG             = False
 
+# ──────────────────────────────────────────────────────────
+# REPORT SETTINGS
+# ──────────────────────────────────────────────────────────
+
+REPORT_OUTPUT_DIR       = "reports"
+REPORT_TITLE            = "Phishing Incident Report"
+REPORT_AUTHOR           = "Phishing Detector"
+
