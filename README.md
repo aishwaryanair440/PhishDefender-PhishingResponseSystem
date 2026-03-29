@@ -1111,7 +1111,7 @@ capping at 100.
 
 ### Step 1 — Clone the Repository
 ```bash
-git clone https://github.com/yourusername/phishing-detector.git
+git clone https://github.com/Himanshu49Gaur/PhishDefender-PhishingResponseSystem.git
 cd phishing-detector
 ```
 
