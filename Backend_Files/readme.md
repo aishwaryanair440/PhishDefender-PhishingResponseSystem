@@ -182,5 +182,40 @@ the phishing is likely text-based social engineering
 which the email model is specifically trained to detect.
 
 ---
+### `report_generator.py`
+Generates a multi-page professional PDF incident report
+using ReportLab's Platypus layout engine.
+
+**Why ReportLab:** ReportLab is the industry-standard
+Python PDF library. It produces true vector PDFs that
+are printable, searchable, and professional-grade —
+unlike HTML-to-PDF conversion libraries which often
+produce inconsistent output.
+
+**Report structure (10 sections):**
+1. Title banner with timestamp and classification level
+2. Verdict banner (color-coded red/orange/green)
+3. Executive summary with 5-column stats table
+4. Email metadata
+5. Threat score breakdown by category
+6. ML model analysis table
+7. Triggered rules with severity and weight
+8. URL scan results from VirusTotal
+9. IP reputation analysis from both APIs
+10. IOC list, header authentication, and recommended
+    actions
+
+**Design rationale:** The report is intentionally
+formatted to match the structure of real security
+incident reports used in SOC environments. A security
+professional reading this report should immediately
+recognize the format and be able to act on it without
+additional training.
+
+Reports are only generated for malicious and suspicious
+verdicts to avoid unnecessary file creation for clean
+emails.
+
+---
 
 
