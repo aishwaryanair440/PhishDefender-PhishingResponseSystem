@@ -54,3 +54,21 @@ async function checkServerStatus() {
         disableScanButton();
     }
 }
+
+// ──────────────────────────────────────────────────────────
+// LOAD LAST RESULT FROM STORAGE
+// ──────────────────────────────────────────────────────────
+
+async function loadLastResult() {
+    try {
+        const stored = await chrome.storage.local.get('lastResult');
+        if (stored.lastResult) {
+            currentResult = stored.lastResult;
+            renderResults(currentResult);
+        }
+    } catch (e) {
+        console.error('[popup] Failed to load last result:', e);
+    }
+}
+
+
