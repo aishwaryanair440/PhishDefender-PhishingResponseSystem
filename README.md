@@ -1205,6 +1205,216 @@ Expected response:
 ```
 
 ---
+## 15. How to Use
+
+1. **Start the backend:** Run `python app.py` in your
+   terminal and keep it running
+2. **Open Gmail:** Navigate to `mail.google.com`
+3. **Open an email:** Click on any email to open it
+4. **Click the extension icon** in the Chrome toolbar
+5. **Click Scan Email** in the popup
+6. **Wait for results** — the analysis takes 15-90
+   seconds depending on how many URLs are in the email
+   and VirusTotal API response time
+7. **Review the verdict** — the popup shows the verdict
+   banner, ML scores, header authentication results,
+   flagged IOCs, triggered rules, and recommended actions
+8. **Download the report** — for malicious and suspicious
+   emails a PDF report download button appears in the
+   popup
+
+---
+
+## 16. Free Deployment Alternatives
+
+Since this project is intentionally built without any
+paid services, here are the deployment options:
+
+### Local Development (Recommended)
+Load the extension via Developer Mode and run
+`python app.py` locally. This is the standard
+development workflow and requires no configuration
+beyond setup. The server runs on `localhost:5000`.
+
+### Free Cloud Backend
+Deploy the Python backend for free on:
+
+| Platform | Free Tier | Notes |
+|----------|-----------|-------|
+| Render.com | 750 hours/month | Sleeps after 15min idle |
+| Railway.app | $5 credit/month | Fast cold start |
+| Fly.io | 3 shared VMs free | Always-on possible |
+
+If deploying to cloud, update `SERVER_URL` in both
+`background.js` and `popup.js` from
+`http://127.0.0.1:5000` to your deployed URL, and
+update `host_permissions` in `manifest.json`
+accordingly.
+
+### Extension Distribution Without Web Store
+Share the extension folder as a ZIP file. Recipients
+load it via Load Unpacked. For a portfolio or resume
+demonstration this is completely sufficient and is
+what hiring managers and interviewers will do when
+evaluating the project.
+
+---
+
+## 17. Resume Highlights
+
+This project demonstrates the following skills and
+technologies that are directly relevant to
+cybersecurity and ML engineering roles:
+
+**Machine Learning and Data Science:**
+- End-to-end ML pipeline from raw data to deployed model
+- Multi-dataset training with schema normalization
+- Feature engineering: TF-IDF, hand-crafted NLP features,
+  URL structural features, interaction terms
+- GPU-accelerated training with LightGBM on Kaggle T4 x2
+- Model evaluation: F1, AUC-ROC, Precision-Recall,
+  confusion matrix, feature importance
+- >98% F1 score on both email and URL classification
+
+**Cybersecurity:**
+- Phishing detection methodology
+- Email authentication protocols: SPF, DKIM, DMARC
+- Indicators of Compromise (IOC) identification
+- Threat intelligence API integration (VirusTotal,
+  AbuseIPDB)
+- Incident report generation in SOC format
+- Browser-based security tooling
+
+**Software Engineering:**
+- Full-stack Python + JavaScript application
+- REST API design with Flask
+- Chrome Extension development (Manifest V3)
+- Service worker architecture
+- Cross-origin resource sharing (CORS)
+- Asynchronous programming in both Python and JavaScript
+- Modular, maintainable codebase with clear separation
+  of concerns
+
+**Tools and Infrastructure:**
+- Kaggle Notebooks with GPU acceleration
+- Chrome DevTools for extension debugging
+- ReportLab for professional PDF generation
+- Version control with Git
+
+---
+
+## 18. Known Limitations
+
+**VirusTotal Free Tier Rate Limits:**
+The free VirusTotal API allows only 4 requests per
+minute. Emails with many URLs will take several minutes
+to fully scan as the system sleeps between requests.
+This is a business constraint of the free tier and
+not a technical limitation of the platform.
+
+**Gmail DOM Dependency:**
+The content script relies on Gmail's DOM structure
+which can change when Google updates the Gmail
+interface. If extraction stops working after a Gmail
+update the CSS selectors in `content.js` will need
+to be updated to match the new structure.
+
+**Local Server Requirement:**
+The Flask backend must be running on the user's machine
+for the extension to work. If `python app.py` is not
+running the extension will show an offline status and
+scans cannot be performed.
+
+**Header Extraction Limitations:**
+Gmail does not expose raw email headers in the standard
+view. The content script can only extract header
+information that Gmail chooses to render visibly in the
+UI such as phishing warning banners, via-domain labels,
+and authentication indicators. Full header access would
+require the Gmail API with OAuth2 authentication.
+
+**Page-Level URL Features:**
+Several URL feature columns from Dataset 2 such as
+`PctExtHyperlinks`, `ExtFavicon`, and `InsecureForms`
+require loading and inspecting the actual web page the
+URL points to. Since the extension reads emails and not
+web pages, these features are set to 0 during inference.
+The URL model was still trained with these features
+present so their absence during inference reduces URL
+model accuracy slightly compared to training conditions.
+
+---
+
+## 19. Future Improvements
+
+- **Gmail API Integration:** Replace DOM scraping with
+  the official Gmail API for reliable header access
+  including full raw header strings for accurate SPF,
+  DKIM, and DMARC parsing
+- **VirusTotal Premium:** With a paid API key the rate
+  limit increases to 1000 requests per minute,
+  eliminating the scanning delay
+- **BERT/Transformer Model:** Replace TF-IDF + LightGBM
+  with a fine-tuned BERT model for email classification.
+  Transformer models capture semantic meaning and long-
+  range dependencies that TF-IDF bigrams miss
+- **Automated Sender Blocking:** Integrate the Gmail API
+  to automatically add malicious senders to the Gmail
+  block list without manual user action
+- **SIEM Integration:** Export IOCs and incident reports
+  to Splunk, Elastic SIEM, or a custom threat intel feed
+  via webhook
+- **Multi-Browser Support:** Port the extension to
+  Firefox using the WebExtensions API which shares most
+  of the Chrome MV3 API surface
+- **Attachment Analysis:** Integrate sandboxed attachment
+  scanning using Any.run or Cuckoo Sandbox API for emails
+  with file attachments
+- **Phishing Campaign Detection:** Aggregate IOCs across
+  multiple scanned emails to detect coordinated phishing
+  campaigns targeting the same organization
+
+---
+
+## 20. License
+
+This project is licensed under the MIT License.
+```
+MIT License
+
+Copyright (c) 2025
+
+Permission is hereby granted, free of charge, to any
+person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the
+Software without restriction, including without
+limitation the rights to use, copy, modify, merge,
+publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software
+is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice
+shall be included in all copies or substantial portions
+of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF
+ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
+SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+```
+
+---
+
+*Built as a cybersecurity portfolio project
+demonstrating end-to-end AI-powered threat detection,
+ML engineering, and browser extension development.*
+
 
 
 
