@@ -60,6 +60,45 @@ analysis without the user having to click the scan
 button manually.
 
 ---
+### `background.js`
+The service worker that acts as the central coordinator
+for the extension.
+
+**Why a service worker:**
+MV3 requires background pages to be implemented as
+service workers. A service worker is a JavaScript
+file that runs in the background independent of any
+open tab or popup. It starts on demand and terminates
+when idle, which is more resource-efficient than a
+persistent background page.
+
+**Timeout handling:**
+`fetchWithTimeout()` wraps every API call with an
+`AbortController`. The main analysis call has a
+2-minute timeout because VirusTotal URL scanning
+involves multiple HTTP round trips with polling delays
+between them. A 10-second timeout would cause most
+scans to fail. The timeout error message explains this
+to the user clearly.
+
+**Scan history:**
+Each completed scan is saved to `chrome.storage.local`
+as a history entry containing the verdict, score,
+sender, subject, IOC count, and report URL. The history
+is capped at 50 entries to prevent unbounded storage
+growth. This means the user can review their most
+recent 50 email scans directly from the extension.
+
+**Notifications:**
+For malicious emails, Chrome notifications are sent
+with `requireInteraction: true` which keeps the
+notification visible until the user explicitly
+dismisses it. For suspicious emails the notification
+auto-dismisses. This distinction matches the urgency
+level of each verdict.
+
+---
+
 
 
 
