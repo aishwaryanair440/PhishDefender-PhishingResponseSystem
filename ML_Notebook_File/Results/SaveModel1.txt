@@ -1,1 +1,31 @@
+=======================================================
+9.1 — Creating Output Directory
+=======================================================
+Save directory : /kaggle/working/phishing_models
 
+
+=======================================================
+9.2 — Saving Email Model
+=======================================================
+Email model saved  : /kaggle/working/phishing_models/email_model.pkl
+Email model (txt)  : /kaggle/working/phishing_models/email_model.txt
+
+
+=======================================================
+9.3 — Saving URL Model
+=======================================================
+URL model saved    : /kaggle/working/phishing_models/url_model.pkl
+URL model (txt)    : /kaggle/working/phishing_models/url_model.txt
+
+
+=======================================================
+9.4 — Saving TF-IDF Vectorizer
+=======================================================
+TF-IDF saved       : /kaggle/working/phishing_models/tfidf_vectorizer.pkl
+Vocabulary size    : 5,000
+...
+
+Notebook complete — all 9 sections done
+Download files from Kaggle output panel
+and place them in your phishing-detector/ folder
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
