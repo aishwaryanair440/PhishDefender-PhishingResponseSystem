@@ -98,6 +98,36 @@ auto-dismisses. This distinction matches the urgency
 level of each verdict.
 
 ---
+### `popup.html` and `popup.css`
+The extension popup is a 420px wide constrained UI
+that renders inside Chrome's extension popup window.
+
+**Dark cybersecurity theme:**
+The UI uses a dark color scheme (`#0D1117` background)
+modeled on GitHub's dark theme and common security
+tool interfaces. This was chosen deliberately —
+security professionals typically work in dark-themed
+environments and the visual language of the tool
+should match its domain.
+
+**CSS variables:**
+All colors, spacing, and border radii are defined as
+CSS custom properties (variables). This means the
+entire theme can be changed by editing the `:root`
+block in popup.css — no searching for hardcoded hex
+values throughout the file.
+
+**Collapsible cards:**
+Each section of the results is rendered as a
+collapsible card. This is necessary because the full
+result set — verdict, email metadata, auth headers,
+ML scores, flags, IOCs, URL results, triggered rules,
+actions, and report — would be far too long to display
+at once in a 650px max-height popup. Cards let the
+user expand exactly the sections they care about.
+
+---
+
 
 
 
