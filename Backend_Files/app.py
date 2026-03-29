@@ -289,3 +289,114 @@ os.makedirs(REPORT_OUTPUT_DIR, exist_ok=True)
 print(f"[app] Reports directory ready : {REPORT_OUTPUT_DIR}")
 print(f"[app] Server starting on      : http://{FLASK_HOST}:{FLASK_PORT}")
 print("=" * 55)
+
+# ──────────────────────────────────────────────────────────
+# RESPONSE BUILDER
+# ──────────────────────────────────────────────────────────
+
+def build_response(
+    parsed_email,
+    ml_scores,
+    threat_intel,
+    rules_result,
+    report_path
+):
+    """
+    Builds the final JSON response sent back to
+    the browser extension
+    """
+    verdict     = rules_result.get('verdict', 'unknown')
+    score       = rules_result.get('total_score', 0)
+    report_url  = None
+
+    if report_path:
+        filename    = os.path.basename(report_path)
+        report_url  = f"http://{FLASK_HOST}:{FLASK_PORT}/report/{filename}"
+
+    return {
+
+        # ── Core result ───────────────────────────────────
+        'verdict'               : verdict,
+        'threat_score'          : score,
+        'summary'               : rules_result.get('summary', ''),
+        'timestamp'             : datetime.now().isoformat(),
+
+        # ── Email metadata ────────────────────────────────
+        'email'                 : {
+            'sender'            : parsed_email.get('sender', ''),
+            'subject'           : parsed_email.get('subject', ''),
+            'url_count'         : len(parsed_email.get('urls', [])),
+            'flags'             : parsed_email.get('flags', []),
+            'text_features'     : parsed_email.get('text_features', {})
+        },
+
+        # ── ML scores ─────────────────────────────────────
+        'ml'                    : {
+            'email_probability' : ml_scores.get(
+                'email_phishing_probability', 0
+            ),
+            'url_probability'   : ml_scores.get(
+                'url_phishing_probability', 0
+            ),
+            'combined_probability': ml_scores.get(
+                'combined_probability', 0
+            ),
+            'model_info'        : ml_scores.get('model_info', {})
+        },
+
+        # ── Threat intelligence ───────────────────────────
+        'threat_intel'          : {
+            'malicious_url_count': threat_intel.get(
+                'malicious_url_count', 0
+            ),
+            'malicious_ip_count' : threat_intel.get(
+                'malicious_ip_count', 0
+            ),
+            'url_results'        : threat_intel.get('url_results', []),
+            'ip_results'         : threat_intel.get('ip_results', []),
+            'threat_score'       : threat_intel.get('threat_score', 0)
+        },
+
+        # ── Rules engine ──────────────────────────────────
+        'rules'                 : {
+            'triggered'         : rules_result.get(
+                'triggered_rules', []
+            ),
+            'score_breakdown'   : rules_result.get(
+                'score_breakdown', {}
+            ),
+            'actions'           : rules_result.get('actions', [])
+        },
+
+        # ── IOCs ──────────────────────────────────────────
+        'iocs'                  : rules_result.get('iocs', []),
+
+        # ── Header analysis ───────────────────────────────
+        'headers'               : {
+            'spf'               : parsed_email.get(
+                'headers', {}
+            ).get('spf', 'unknown'),
+            'dkim'              : parsed_email.get(
+                'headers', {}
+            ).get('dkim', 'unknown'),
+            'dmarc'             : parsed_email.get(
+                'headers', {}
+            ).get('dmarc', 'unknown'),
+            'originating_ip'    : parsed_email.get(
+                'headers', {}
+            ).get('originating_ip', None),
+            'reply_to_mismatch' : parsed_email.get(
+                'headers', {}
+            ).get('reply_to_mismatch', False)
+        },
+
+        # ── Report ────────────────────────────────────────
+        'report'                : {
+            'generated'         : report_path is not None,
+            'download_url'      : report_url,
+            'filename'          : os.path.basename(report_path)
+                                  if report_path else None
+        }
+    }
+
+
