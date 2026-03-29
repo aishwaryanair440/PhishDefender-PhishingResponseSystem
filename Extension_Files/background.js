@@ -28,3 +28,51 @@ chrome.runtime.onInstalled.addListener((details) => {
 
     console.log('[background] Default storage values set');
 });
+
+// ──────────────────────────────────────────────────────────
+// MESSAGE LISTENER
+// Main router for all messages from popup.js and content.js
+// ──────────────────────────────────────────────────────────
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(`[background] Message received: ${message.action}`);
+
+    switch (message.action) {
+
+        case 'analyzeEmail':
+            handleAnalyzeEmail(message.emailData)
+                .then(result => sendResponse(result))
+                .catch(err  => sendResponse({
+                    error: err.message || 'Analysis failed'
+                }));
+            return true; // Keep channel open for async
+
+        case 'newEmailDetected':
+            handleNewEmailDetected(message.url);
+            return false;
+
+        case 'getHistory':
+            getHistory()
+                .then(history => sendResponse({ history }))
+                .catch(err    => sendResponse({ error: err.message }));
+            return true;
+
+        case 'clearHistory':
+            clearHistory()
+                .then(() => sendResponse({ success: true }))
+                .catch(err => sendResponse({ error: err.message }));
+            return true;
+
+        case 'checkServer':
+            checkServerStatus()
+                .then(status => sendResponse(status))
+                .catch(err   => sendResponse({ online: false }));
+            return true;
+
+        default:
+            console.warn(`[background] Unknown action: ${message.action}`);
+            sendResponse({ error: `Unknown action: ${message.action}` });
+            return false;
+    }
+});
+
