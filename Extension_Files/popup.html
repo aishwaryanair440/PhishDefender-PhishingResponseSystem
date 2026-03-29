@@ -7,3 +7,405 @@
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+
+    <!-- ══════════════════════════════════════════════════
+         HEADER
+    ══════════════════════════════════════════════════ -->
+    <div class="header">
+        <div class="header-left">
+            <div class="header-icon">&#9888;</div>
+            <div>
+                <div class="header-title">Phishing Detector</div>
+                <div class="header-subtitle">AI-Powered Email Security</div>
+            </div>
+        </div>
+        <div class="server-status">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="status-text">Checking...</span>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════
+         MAIN CONTENT
+    ══════════════════════════════════════════════════ -->
+    <div class="content">
+
+        <!-- ── Server offline banner ─────────────────── -->
+        <div class="server-offline-banner" id="offline-banner"
+             style="display:none;">
+            &#9888;
+            <div>
+                <strong>Backend server offline.</strong>
+                Run <code>python app.py</code> to start it.
+            </div>
+        </div>
+
+        <!-- ── Idle state ────────────────────────────── -->
+        <div class="idle-container" id="idle-state">
+            <div class="idle-icon">&#128274;</div>
+            <div class="idle-title">No email scanned yet</div>
+            <div class="idle-subtitle">
+                Open an email in Gmail and click
+                Scan Email to begin analysis.
+            </div>
+        </div>
+
+        <!-- ── Loading state ─────────────────────────── -->
+        <div class="loading-container" id="loading-state"
+             style="display:none;">
+            <div class="spinner"></div>
+            <div class="loading-text">Analysing email...</div>
+            <div class="loading-step" id="loading-step">
+                Parsing email content
+            </div>
+        </div>
+
+        <!-- ── Error state ───────────────────────────── -->
+        <div class="error-container" id="error-state"
+             style="display:none;">
+            <div class="error-icon">&#10060;</div>
+            <div class="error-title">Analysis Failed</div>
+            <div class="error-message" id="error-message">
+                An unexpected error occurred.
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             RESULTS (shown after scan)
+        ══════════════════════════════════════════════ -->
+        <div id="results-container" style="display:none;">
+
+            <!-- ── Verdict banner ────────────────────── -->
+            <div class="verdict-banner fade-in" id="verdict-banner">
+                <div class="verdict-top">
+                    <div class="verdict-label">
+                        <span class="verdict-icon"
+                              id="verdict-icon"></span>
+                        <span class="verdict-text"
+                              id="verdict-text"></span>
+                    </div>
+                    <div class="verdict-score">
+                        <span class="score-value"
+                              id="score-value"></span>
+                        <span class="score-label">/ 100</span>
+                    </div>
+                </div>
+                <div class="score-bar-container">
+                    <div class="score-bar-track">
+                        <div class="score-bar-fill"
+                             id="score-bar-fill"
+                             style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="verdict-summary"
+                     id="verdict-summary"></div>
+            </div>
+
+            <!-- ── Email metadata card ───────────────── -->
+            <div class="card fade-in">
+                <div class="card-header"
+                     onclick="toggleCard('email-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#9993;</span>
+                        <span class="card-title">Email Details</span>
+                    </div>
+                    <div style="display:flex;
+                                align-items:center;
+                                gap:8px;">
+                        <span class="card-toggle"
+                              id="email-card-toggle">&#9660;</span>
+                    </div>
+                </div>
+                <div class="card-body" id="email-card">
+                    <div class="meta-row">
+                        <span class="meta-label">Sender</span>
+                        <span class="meta-value mono"
+                              id="meta-sender"></span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Subject</span>
+                        <span class="meta-value"
+                              id="meta-subject"></span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">URLs</span>
+                        <span class="meta-value"
+                              id="meta-urls"></span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Keywords</span>
+                        <span class="meta-value"
+                              id="meta-keywords"></span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">HTML</span>
+                        <span class="meta-value"
+                              id="meta-html"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Header auth card ──────────────────── -->
+            <div class="card fade-in">
+                <div class="card-header"
+                     onclick="toggleCard('header-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#128272;</span>
+                        <span class="card-title">
+                            Header Authentication
+                        </span>
+                    </div>
+                    <span class="card-toggle"
+                          id="header-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body" id="header-card">
+                    <div class="auth-grid">
+                        <div class="auth-item">
+                            <span class="auth-name">SPF</span>
+                            <span class="auth-result"
+                                  id="auth-spf"></span>
+                        </div>
+                        <div class="auth-item">
+                            <span class="auth-name">DKIM</span>
+                            <span class="auth-result"
+                                  id="auth-dkim"></span>
+                        </div>
+                        <div class="auth-item">
+                            <span class="auth-name">DMARC</span>
+                            <span class="auth-result"
+                                  id="auth-dmarc"></span>
+                        </div>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Origin IP</span>
+                        <span class="meta-value mono"
+                              id="meta-ip"></span>
+                    </div>
+                    <div class="meta-row">
+                        <span class="meta-label">Reply-To</span>
+                        <span class="meta-value"
+                              id="meta-replyto"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── ML scores card ────────────────────── -->
+            <div class="card fade-in">
+                <div class="card-header"
+                     onclick="toggleCard('ml-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#129302;</span>
+                        <span class="card-title">ML Analysis</span>
+                    </div>
+                    <span class="card-toggle"
+                          id="ml-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body" id="ml-card">
+                    <div class="ml-score-row">
+                        <span class="ml-score-label">
+                            Email model
+                        </span>
+                        <div class="ml-score-bar-track">
+                            <div class="ml-score-bar-fill"
+                                 id="ml-email-bar"
+                                 style="width:0%"></div>
+                        </div>
+                        <span class="ml-score-value"
+                              id="ml-email-val"></span>
+                    </div>
+                    <div class="ml-score-row">
+                        <span class="ml-score-label">
+                            URL model
+                        </span>
+                        <div class="ml-score-bar-track">
+                            <div class="ml-score-bar-fill"
+                                 id="ml-url-bar"
+                                 style="width:0%"></div>
+                        </div>
+                        <span class="ml-score-value"
+                              id="ml-url-val"></span>
+                    </div>
+                    <div class="ml-score-row">
+                        <span class="ml-score-label">
+                            Combined
+                        </span>
+                        <div class="ml-score-bar-track">
+                            <div class="ml-score-bar-fill"
+                                 id="ml-combined-bar"
+                                 style="width:0%"></div>
+                        </div>
+                        <span class="ml-score-value"
+                              id="ml-combined-val"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Flags card ────────────────────────── -->
+            <div class="card fade-in" id="flags-card-wrap">
+                <div class="card-header"
+                     onclick="toggleCard('flags-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#9873;</span>
+                        <span class="card-title">
+                            Red Flags
+                        </span>
+                        <span class="card-badge warning"
+                              id="flags-badge"></span>
+                    </div>
+                    <span class="card-toggle"
+                          id="flags-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body" id="flags-card">
+                    <div class="flags-list"
+                         id="flags-list"></div>
+                </div>
+            </div>
+
+            <!-- ── IOC card ──────────────────────────── -->
+            <div class="card fade-in" id="ioc-card-wrap">
+                <div class="card-header"
+                     onclick="toggleCard('ioc-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#128683;</span>
+                        <span class="card-title">
+                            Indicators of Compromise
+                        </span>
+                        <span class="card-badge danger"
+                              id="ioc-badge"></span>
+                    </div>
+                    <span class="card-toggle"
+                          id="ioc-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body hidden" id="ioc-card">
+                    <div class="ioc-list"
+                         id="ioc-list"></div>
+                </div>
+            </div>
+
+            <!-- ── URL results card ──────────────────── -->
+            <div class="card fade-in" id="url-card-wrap">
+                <div class="card-header"
+                     onclick="toggleCard('url-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#128279;</span>
+                        <span class="card-title">
+                            URL Scan Results
+                        </span>
+                        <span class="card-badge"
+                              id="url-badge"></span>
+                    </div>
+                    <span class="card-toggle"
+                          id="url-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body hidden"
+                     id="url-card">
+                    <div class="url-list"
+                         id="url-list"></div>
+                </div>
+            </div>
+
+            <!-- ── Triggered rules card ──────────────── -->
+            <div class="card fade-in">
+                <div class="card-header"
+                     onclick="toggleCard('rules-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#9881;</span>
+                        <span class="card-title">
+                            Triggered Rules
+                        </span>
+                        <span class="card-badge"
+                              id="rules-badge"></span>
+                    </div>
+                    <span class="card-toggle"
+                          id="rules-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body hidden"
+                     id="rules-card">
+                    <div class="rules-list"
+                         id="rules-list"></div>
+                </div>
+            </div>
+
+            <!-- ── Recommended actions card ──────────── -->
+            <div class="card fade-in">
+                <div class="card-header"
+                     onclick="toggleCard('actions-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#9989;</span>
+                        <span class="card-title">
+                            Recommended Actions
+                        </span>
+                    </div>
+                    <span class="card-toggle"
+                          id="actions-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body hidden"
+                     id="actions-card">
+                    <div class="actions-list"
+                         id="actions-list"></div>
+                </div>
+            </div>
+
+            <!-- ── Report card ───────────────────────── -->
+            <div class="card fade-in"
+                 id="report-card-wrap"
+                 style="display:none;">
+                <div class="card-header"
+                     onclick="toggleCard('report-card')">
+                    <div class="card-header-left">
+                        <span class="card-icon">&#128196;</span>
+                        <span class="card-title">
+                            Incident Report
+                        </span>
+                    </div>
+                    <span class="card-toggle"
+                          id="report-card-toggle">&#9660;</span>
+                </div>
+                <div class="card-body" id="report-card">
+                    <div class="report-section">
+                        <div class="meta-row">
+                            <span class="meta-label">
+                                Status
+                            </span>
+                            <span class="meta-value"
+                                  id="report-status"></span>
+                        </div>
+                        <button class="btn btn-primary"
+                                id="download-report-btn"
+                                style="display:none;"
+                                onclick="downloadReport()">
+                            &#11015; Download PDF Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- end results-container -->
+
+        <!-- ── Scan button ───────────────────────────── -->
+        <div class="scan-section" id="scan-section">
+            <button class="btn btn-scan"
+                    id="scan-btn"
+                    onclick="startScan()">
+                &#128269; Scan Email
+            </button>
+        </div>
+
+    </div>
+    <!-- end content -->
+
+    <!-- ══════════════════════════════════════════════════
+         FOOTER
+    ══════════════════════════════════════════════════ -->
+    <div class="footer">
+        <span class="footer-text">
+            Phishing Detector &copy; 2025
+        </span>
+        <span class="footer-version">v1.0.0</span>
+    </div>
+
+    <script src="popup.js"></script>
+
+</body>
+</html>
