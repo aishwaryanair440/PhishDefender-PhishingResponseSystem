@@ -44,5 +44,21 @@ as PNG files.
 - Removed 419 duplicate rows
 - Final: 9,581 rows, 47 features
 
+### Section 5 — Feature Engineering
+**Email model features:**
+
+Two complementary feature sets are built and stacked:
+
+1. **TF-IDF features (5,000):** The cleaned text field
+   is vectorized using `TfidfVectorizer` with
+   `ngram_range=(1,2)` for unigrams and bigrams,
+   `sublinear_tf=True` to dampen frequent terms,
+   `min_df=5` to remove rare tokens, and
+   `max_df=0.95` to remove ubiquitous terms.
+   This produces a sparse matrix of 155,108 × 5,000.
+
+2. **Hand-crafted features (13):** These capture signal
+   that pure text frequency cannot detect:
+
 
 
