@@ -4,4 +4,12 @@
 # pip install -r requirements.txt
 # ============================================================
 
+# ── Flask server ──────────────────────────────────────────
+flask==3.0.3
+flask-cors==5.0.0
 
+# ── HTTP requests (API calls) ─────────────────────────────
+requests==2.32.3
+
+# ── Email parsing ─────────────────────────────────────────
+beautifulsoup4==4.12.3
