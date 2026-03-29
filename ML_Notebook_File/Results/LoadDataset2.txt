@@ -1,0 +1,31 @@
+=======================================================
+INDIVIDUAL FILE SIZES
+=======================================================
+CEAS_08         :  39,154 rows
+Enron           :  29,767 rows
+Ling            :   2,859 rows
+Nazario         :   1,565 rows
+Nigerian Fraud  :   3,332 rows
+SpamAssasin     :   5,809 rows
+Phishing Email  :  82,486 rows
+
+
+=======================================================
+DATASET 1 — Email dataset (merged)
+=======================================================
+Shape           : (164972, 8)
+Columns         : ['sender', 'receiver', 'date', 'subject', 'body', 'urls', 'label', 'source']
+
+Label distribution:
+label
+1    85782
+0    79190
+Name: count, dtype: int64
+
+Label % split:
+...
+0    5000
+Name: count, dtype: int64
+
+Null values: 0
+Output is truncated. View as a scrollable element or open in a text editor. Adjust cell output settings...
