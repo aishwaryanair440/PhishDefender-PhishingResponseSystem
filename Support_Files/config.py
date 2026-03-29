@@ -57,3 +57,21 @@ REPORT_OUTPUT_DIR       = "reports"
 REPORT_TITLE            = "Phishing Incident Report"
 REPORT_AUTHOR           = "Phishing Detector"
 
+# ──────────────────────────────────────────────────────────
+# PHISHING KEYWORDS
+# (must match exactly what was used during training)
+# ──────────────────────────────────────────────────────────
+
+PHISHING_KEYWORDS = [
+    'click', 'verify', 'account', 'password', 'urgent',
+    'bank', 'login', 'update', 'confirm', 'secure',
+    'winner', 'prize', 'free', 'offer', 'limited',
+    'suspend', 'validate', 'expire', 'immediate', 'alert'
+]
+
+SUBJECT_KEYWORDS = [
+    'urgent', 'verify', 'suspended', 'winner',
+    'congratulations', 'alert', 'confirm', 'free'
+]
+
+
