@@ -264,3 +264,14 @@ phishing-detector/
 | ReportLab | 4.2.2 | PDF incident report generation |
 | python-whois | 0.9.4 | Domain age lookup |
 | dnspython | 2.6.1 | DNS resolution utilities |
+
+### Chrome Extension
+
+| Technology | Purpose |
+|------------|---------|
+| JavaScript (ES6+) | Extension logic |
+| Chrome Extension Manifest V3 | Latest extension standard |
+| Chrome Storage API | Persisting results and history |
+| Chrome Notifications API | Phishing alert notifications |
+| Chrome Tabs API | Gmail tab interaction |
+| MutationObserver | Gmail DOM change detection |
