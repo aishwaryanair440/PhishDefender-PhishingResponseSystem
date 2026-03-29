@@ -275,3 +275,16 @@ phishing-detector/
 | Chrome Notifications API | Phishing alert notifications |
 | Chrome Tabs API | Gmail tab interaction |
 | MutationObserver | Gmail DOM change detection |
+
+### ML and Data
+
+| Technology | Purpose |
+|------------|---------|
+| Kaggle Notebooks | Training environment |
+| CUDA / GPU T4 x2 | GPU-accelerated model training |
+| TF-IDF (5000 features) | Email text vectorization |
+| LightGBM (GPU mode) | Both email and URL classifiers |
+| scipy sparse matrices | Efficient TF-IDF + feature stacking |
+
+---
+
