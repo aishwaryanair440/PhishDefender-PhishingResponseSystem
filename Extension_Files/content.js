@@ -338,3 +338,49 @@ function parseAuthHeaders(text, headers) {
         headers['received'] = ipMatch[0];
     }
 }
+
+// ──────────────────────────────────────────────────────────
+// URL EXTRACTION FROM BODY
+// ──────────────────────────────────────────────────────────
+
+function extractURLsFromBody(bodyText) {
+    if (!bodyText) return [];
+
+    const urlPattern = /https?:\/\/[^\s<>"')\]]+|www\.[^\s<>"')\]]+/gi;
+    const matches    = bodyText.match(urlPattern) || [];
+
+    // Also extract from Gmail's redirect URLs
+    const gmailLinks = document.querySelectorAll(
+        'div[role="main"] a[href]'
+    );
+
+    const linkUrls = [];
+    gmailLinks.forEach(link => {
+        let href = link.getAttribute('href') || '';
+
+        // Decode Gmail redirect URLs
+        // Gmail wraps links in https://www.google.com/url?q=
+        if (href.includes('google.com/url')) {
+            const urlParam = new URL(href).searchParams.get('q');
+            if (urlParam) href = urlParam;
+        }
+
+        if (
+            href.startsWith('http') &&
+            !href.includes('mail.google.com') &&
+            !href.includes('accounts.google.com')
+        ) {
+            linkUrls.push(href);
+        }
+    });
+
+    // Combine and deduplicate
+    const allUrls = [...new Set([...matches, ...linkUrls])];
+
+    // Clean URLs
+    return allUrls
+        .map(url => url.replace(/[.,;:!?)\]]+$/, '').trim())
+        .filter(url => url.length > 10)
+        .slice(0, 20); // Cap at 20 URLs
+}
+
