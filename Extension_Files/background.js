@@ -198,3 +198,36 @@ async function handleNewEmailDetected(url) {
     }
 }
 
+// ──────────────────────────────────────────────────────────
+// SERVER STATUS CHECK
+// ──────────────────────────────────────────────────────────
+
+async function checkServerStatus() {
+    try {
+        const response = await fetchWithTimeout(
+            `${SERVER_URL}/ping`,
+            { method: 'GET' },
+            3000
+        );
+
+        if (response.ok) {
+            const data = await response.json();
+            return {
+                online      : true,
+                message     : data.message || 'Server online',
+                timestamp   : data.timestamp
+            };
+        }
+
+        return { online: false, message: 'Server returned error' };
+
+    } catch (e) {
+        return {
+            online      : false,
+            message     : 'Server unreachable',
+            error       : e.message
+        };
+    }
+}
+
+
