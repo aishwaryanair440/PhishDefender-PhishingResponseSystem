@@ -82,6 +82,7 @@ async function startScan() {
     }
 
     showLoading('Connecting to Gmail...');
+    updateProgress(10);
     disableScanButton();
 
     try {
@@ -102,6 +103,8 @@ async function startScan() {
 
         // Send message to content script to extract email
         updateLoadingStep('Extracting email content...');
+        updateProgress(30);
+         await new Promise(resolve => setTimeout(resolve, 500));
 
         const emailData = await chrome.tabs.sendMessage(
             tab.id,
@@ -120,6 +123,8 @@ async function startScan() {
 
         // Send to background for analysis
         updateLoadingStep('Running ML analysis...');
+        updateProgress(60);
+         await new Promise(resolve => setTimeout(resolve, 500));
 
         const result = await chrome.runtime.sendMessage({
             action      : 'analyzeEmail',
@@ -133,11 +138,18 @@ async function startScan() {
         }
 
         // Store result and render
+        updateLoadingStep('Checking threat intelligence...');
+        updateProgress(80);
+
         currentResult = result;
         await chrome.storage.local.set({ lastResult: result });
 
-        updateLoadingStep('Rendering results...');
-        renderResults(result);
+       updateLoadingStep('Preparing results...');
+       updateProgress(95);
+
+       renderResults(result);
+
+        updateProgress(100);
         enableScanButton();
 
     } catch (e) {
@@ -576,6 +588,13 @@ function showLoading(message) {
         loadingText.textContent = message || 'Analysing email...';
     }
 }
+function updateProgress(percent) {
+    const bar = document.getElementById('progress-bar');
+
+    if (bar) {
+        bar.style.width = `${percent}%`;
+    }
+}
 
 function updateLoadingStep(step) {
     const stepEl = document.getElementById('loading-step');
@@ -608,7 +627,7 @@ function disableScanButton() {
     const btn = document.getElementById('scan-btn');
     if (btn) {
         btn.disabled        = true;
-        btn.textContent     = 'Scanning...';
+        btn.innerHTML = '⏳ Scanning...';
     }
 }
 
