@@ -1,15 +1,19 @@
-# ============================================================
-# config.py
-# Central configuration file for the phishing detector
-# DO NOT push this file to GitHub
-# ============================================================
+import os
+from dotenv import load_dotenv
 
-# ──────────────────────────────────────────────────────────
-# API KEYS
-# ──────────────────────────────────────────────────────────
+# Load .env file from the project root (one level up from Backend_Files)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
 
-VIRUSTOTAL_API_KEY  = "your_virustotal_api_key_here"
-ABUSEIPDB_API_KEY   = "your_abuseipdb_api_key_here"
+# --- API Keys (loaded from .env) ---
+VIRUSTOTAL_API_KEY  = os.getenv("VIRUSTOTAL_API_KEY", "")
+ABUSEIPDB_API_KEY   = os.getenv("ABUSEIPDB_API_KEY", "")
+
+# --- Flask Settings ---
+FLASK_ENV  = os.getenv("FLASK_ENV", "development")
+FLASK_PORT = int(os.getenv("FLASK_PORT", 5000))
+FLASK_HOST = os.getenv("FLASK_HOST", "127.0.0.1")
+VIRUSTOTAL_API_KEY  = "your_actual_virustotal_key"
+ABUSEIPDB_API_KEY   = "your_actual_abuseipdb_key"
 
 # ──────────────────────────────────────────────────────────
 # API URLS
