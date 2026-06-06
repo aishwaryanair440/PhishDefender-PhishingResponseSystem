@@ -1,0 +1,7 @@
+flask
+flask-cors
+beautifulsoup4
+lightgbm
+pandas
+scikit-learn
+reportlab
