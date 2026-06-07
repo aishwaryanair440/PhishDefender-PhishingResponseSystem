@@ -97,43 +97,6 @@ def generate_report(
     story += build_ml_analysis(styles, ml_scores)
     story += build_triggered_rules(styles, rules_result)
     story += build_url_analysis(styles, threat_intel)
-
-    def build_error_reporting_section(styles, threat_intel):
-    elements = []
-
-    elements.append(
-        Paragraph('8. Threat Intelligence Errors', styles['section_heading'])
-    )
-
-    errors = threat_intel.get('errors', [])
-
-    if not errors:
-        elements.append(
-            Paragraph('No errors detected.', styles['body'])
-        )
-        return elements
-
-    error_data = [[
-        Paragraph('Source', styles['table_header']),
-        Paragraph('Error Message', styles['table_header'])
-    ]]
-
-    for err in errors:
-        error_data.append([
-            Paragraph(err.get('source', 'Unknown'), styles['table_cell_bold']),
-            Paragraph(err.get('message', 'N/A'), styles['table_cell'])
-        ])
-
-    table = Table(error_data, colWidths=[4 * cm, 13 * cm])
-
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), DARK_BLUE),
-        ('GRID', (0,0), (-1,-1), 0.5, MID_GREY),
-    ]))
-
-    elements.append(table)
-
-    return elements
     
     story += build_ip_analysis(styles, threat_intel)
     story += build_error_reporting_section(styles, threat_intel)
@@ -883,7 +846,64 @@ def build_ip_analysis(styles, threat_intel):
 
     return elements
 
+def build_error_reporting_section(styles, threat_intel):
+    elements = []
 
+    elements.append(
+        Paragraph(
+            '8. Threat Intelligence Errors',
+            styles['section_heading']
+        )
+    )
+
+    elements.append(HRFlowable(
+        width='100%',
+        thickness=1,
+        color=LIGHT_BLUE,
+        spaceAfter=6
+    ))
+
+    errors = threat_intel.get('errors', [])
+
+    if not errors:
+        elements.append(
+            Paragraph('No errors detected.', styles['body'])
+        )
+        return elements
+
+    error_data = [[
+        Paragraph('Source', styles['table_header']),
+        Paragraph('Error Message', styles['table_header'])
+    ]]
+
+    for err in errors:
+        error_data.append([
+            Paragraph(
+                err.get('source', 'Unknown'),
+                styles['table_cell_bold']
+            ),
+            Paragraph(
+                err.get('message', 'N/A'),
+                styles['table_cell']
+            )
+        ])
+
+    table = Table(
+        error_data,
+        colWidths=[4 * cm, 13 * cm]
+    )
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), DARK_BLUE),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [WHITE, LIGHT_GREY]),
+        ('GRID', (0, 0), (-1, -1), 0.5, MID_GREY),
+    ]))
+
+    elements.append(table)
+    elements.append(Spacer(1, 0.3 * cm))
+
+    return elements
+    
 def build_ioc_section(styles, rules_result):
     """
     Builds the IOC (Indicators of Compromise) section
