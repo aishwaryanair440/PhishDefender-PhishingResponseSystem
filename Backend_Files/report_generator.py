@@ -8,7 +8,9 @@ import os
 from datetime import datetime
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import cm
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -17,7 +19,6 @@ from reportlab.platypus import (
     TableStyle,
     HRFlowable
 )
-from reportlab.platypus.flowables import KeepTogether
 from config import (
     REPORT_OUTPUT_DIR,
     REPORT_TITLE,
@@ -818,7 +819,7 @@ def build_ip_analysis(styles, threat_intel):
                 styles['table_cell']
             ),
             Paragraph(
-                'YES' if result.get('is_tor': abuse_ip_result.get('is_tor', False),) else 'NO',
+                'YES' if result.get('is_tor', False) else 'NO',
                 styles['table_cell']
             )
         ])
