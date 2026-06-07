@@ -60,6 +60,13 @@ def run_threat_intelligence(parsed_email):
                 continue
 
             vt_result = scan_url_virustotal(raw_url)
+            
+            if vt_result.get('error'):
+                results['errors'].append({
+                    'source': 'VirusTotal URL',
+                    'message': vt_result.get('error')
+                })
+                
             url_obj['virustotal'] = vt_result
 
             if vt_result.get('malicious', False):
@@ -94,6 +101,18 @@ def run_threat_intelligence(parsed_email):
 
         vt_ip_result     = scan_ip_virustotal(origin_ip)
         abuse_ip_result  = scan_ip_abuseipdb(origin_ip)
+        
+        if vt_ip_result.get('error'):
+            results['errors'].append({
+                'source': 'VirusTotal IP',
+                'message': vt_ip_result.get('error')
+            })
+            
+        if abuse_ip_result.get('error'):
+            results['errors'].append({
+                'source': 'AbuseIPDB',
+                'message': abuse_ip_result.get('error')
+            })
 
         ip_malicious = (
             vt_ip_result.get('malicious', False) or
@@ -120,6 +139,7 @@ def run_threat_intelligence(parsed_email):
             'isp'               : abuse_ip_result.get('isp', 'unknown'),
             'domain'            : abuse_ip_result.get('domain', 'unknown'),
             'total_reports'     : abuse_ip_result.get('total_reports', 0),
+            'is_tor'            : abuse_ip_result.get('is_tor', False),
             'error'             : vt_ip_result.get('error', None)
         })
 

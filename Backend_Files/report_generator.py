@@ -5,23 +5,20 @@
 # ============================================================
 
 import os
-import json
 from datetime import datetime
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm
-from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.lib.units import cm
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer,
     Table,
     TableStyle,
-    HRFlowable,
-    PageBreak
+    HRFlowable
 )
-from reportlab.platypus.flowables import KeepTogether
 from config import (
     REPORT_OUTPUT_DIR,
     REPORT_TITLE,
@@ -91,14 +88,16 @@ def generate_report(
 
     # ── Add sections in order ─────────────────────────────
     story += build_header(styles, rules_result, timestamp)
-    story += build_executive_summary(styles, rules_result, parsed_email)
+    story += build_executive_summary(styles, rules_result, parsed_email, threat_intel)
     story += build_email_metadata(styles, parsed_email)
     story += build_threat_score_section(styles, rules_result, ml_scores)
     story += build_ml_analysis(styles, ml_scores)
     story += build_triggered_rules(styles, rules_result)
     story += build_url_analysis(styles, threat_intel)
+    
     story += build_ip_analysis(styles, threat_intel)
-    story += build_ioc_section(styles, rules_result)
+    story += build_error_reporting_section(styles, threat_intel)
+    story += build_ioc_section(styles, threat_intel)
     story += build_header_analysis(styles, parsed_email)
     story += build_recommended_actions(styles, rules_result)
     story += build_footer_section(styles, timestamp)
@@ -117,7 +116,7 @@ def build_styles():
     """
     Builds all custom paragraph styles used in the report
     """
-    base    = getSampleStyleSheet()
+    #base    = getSampleStyleSheet()
     styles  = {}
 
     styles['title'] = ParagraphStyle(
@@ -289,7 +288,7 @@ def build_header(styles, rules_result, timestamp):
     return elements
 
 
-def build_executive_summary(styles, rules_result, parsed_email):
+def build_executive_summary(styles, rules_result, parsed_email, threat_intel):
     """
     Builds the executive summary section
     """
@@ -309,7 +308,7 @@ def build_executive_summary(styles, rules_result, parsed_email):
     verdict     = rules_result.get('verdict', 'unknown')
     score       = rules_result.get('total_score', 0)
     rule_count  = len(rules_result.get('triggered_rules', []))
-    ioc_count   = len(rules_result.get('iocs', []))
+    ioc_count   = len(threat_intel.get('iocs', []))
     flag_count  = len(rules_result.get('flags', []))
 
     stats_data = [
@@ -820,7 +819,7 @@ def build_ip_analysis(styles, threat_intel):
                 styles['table_cell']
             ),
             Paragraph(
-                'YES' if result.get('is_tor') else 'NO',
+                'YES' if result.get('is_tor', False) else 'NO',
                 styles['table_cell']
             )
         ])
@@ -844,21 +843,78 @@ def build_ip_analysis(styles, threat_intel):
 
     return elements
 
+def build_error_reporting_section(styles, threat_intel):
+    elements = []
 
-def build_ioc_section(styles, rules_result):
+    elements.append(
+        Paragraph(
+            '8. Threat Intelligence Errors',
+            styles['section_heading']
+        )
+    )
+
+    elements.append(HRFlowable(
+        width='100%',
+        thickness=1,
+        color=LIGHT_BLUE,
+        spaceAfter=6
+    ))
+
+    errors = threat_intel.get('errors', [])
+
+    if not errors:
+        elements.append(
+            Paragraph('No errors detected.', styles['body'])
+        )
+        return elements
+
+    error_data = [[
+        Paragraph('Source', styles['table_header']),
+        Paragraph('Error Message', styles['table_header'])
+    ]]
+
+    for err in errors:
+        error_data.append([
+            Paragraph(
+                err.get('source', 'Unknown'),
+                styles['table_cell_bold']
+            ),
+            Paragraph(
+                err.get('message', 'N/A'),
+                styles['table_cell']
+            )
+        ])
+
+    table = Table(
+        error_data,
+        colWidths=[4 * cm, 13 * cm]
+    )
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), DARK_BLUE),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [WHITE, LIGHT_GREY]),
+        ('GRID', (0, 0), (-1, -1), 0.5, MID_GREY),
+    ]))
+
+    elements.append(table)
+    elements.append(Spacer(1, 0.3 * cm))
+
+    return elements
+    
+def build_ioc_section(styles, threat_intel):
     """
     Builds the IOC (Indicators of Compromise) section
     """
     elements = []
     elements.append(
-        Paragraph('8. Indicators of Compromise (IOCs)', styles['section_heading'])
+        Paragraph('9. Indicators of Compromise (IOCs)', styles['section_heading'])
     )
     elements.append(HRFlowable(
         width='100%', thickness=1,
         color=LIGHT_BLUE, spaceAfter=6
     ))
 
-    iocs = rules_result.get('iocs', [])
+    iocs = threat_intel.get('iocs', [])
 
     if not iocs:
         elements.append(
@@ -919,7 +975,7 @@ def build_header_analysis(styles, parsed_email):
     """
     elements = []
     elements.append(
-        Paragraph('9. Email Header Analysis', styles['section_heading'])
+        Paragraph('10. Email Header Analysis', styles['section_heading'])
     )
     elements.append(HRFlowable(
         width='100%', thickness=1,
@@ -1049,7 +1105,7 @@ def build_recommended_actions(styles, rules_result):
     """
     elements = []
     elements.append(
-        Paragraph('10. Recommended Actions', styles['section_heading'])
+        Paragraph('11. Recommended Actions', styles['section_heading'])
     )
     elements.append(HRFlowable(
         width='100%', thickness=1,
