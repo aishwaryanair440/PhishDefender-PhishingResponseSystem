@@ -5,13 +5,10 @@
 # ============================================================
 
 import os
-import json
 from datetime import datetime
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm
-from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -822,7 +819,7 @@ def build_ip_analysis(styles, threat_intel):
                 styles['table_cell']
             ),
             Paragraph(
-                'YES' if result.get('is_tor') else 'NO',
+                'YES' if result.get('is_tor': abuse_ip_result.get('is_tor', False),) else 'NO',
                 styles['table_cell']
             )
         ])
