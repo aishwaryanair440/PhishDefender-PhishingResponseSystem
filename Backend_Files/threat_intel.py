@@ -139,6 +139,7 @@ def run_threat_intelligence(parsed_email):
             'isp'               : abuse_ip_result.get('isp', 'unknown'),
             'domain'            : abuse_ip_result.get('domain', 'unknown'),
             'total_reports'     : abuse_ip_result.get('total_reports', 0),
+            'is_tor'            : abuse_ip_result.get('is_tor', False),
             'error'             : vt_ip_result.get('error', None)
         })
 
