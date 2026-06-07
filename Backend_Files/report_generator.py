@@ -910,7 +910,7 @@ def build_ioc_section(styles, rules_result):
     """
     elements = []
     elements.append(
-        Paragraph('8. Indicators of Compromise (IOCs)', styles['section_heading'])
+        Paragraph('9. Indicators of Compromise (IOCs)', styles['section_heading'])
     )
     elements.append(HRFlowable(
         width='100%', thickness=1,
@@ -978,7 +978,7 @@ def build_header_analysis(styles, parsed_email):
     """
     elements = []
     elements.append(
-        Paragraph('9. Email Header Analysis', styles['section_heading'])
+        Paragraph('10. Email Header Analysis', styles['section_heading'])
     )
     elements.append(HRFlowable(
         width='100%', thickness=1,
@@ -1108,7 +1108,7 @@ def build_recommended_actions(styles, rules_result):
     """
     elements = []
     elements.append(
-        Paragraph('10. Recommended Actions', styles['section_heading'])
+        Paragraph('11. Recommended Actions', styles['section_heading'])
     )
     elements.append(HRFlowable(
         width='100%', thickness=1,
