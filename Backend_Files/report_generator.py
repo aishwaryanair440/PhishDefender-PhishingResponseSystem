@@ -97,7 +97,7 @@ def generate_report(
     
     story += build_ip_analysis(styles, threat_intel)
     story += build_error_reporting_section(styles, threat_intel)
-    story += build_ioc_section(styles, rules_result)
+    story += build_ioc_section(styles, threat_intel)
     story += build_header_analysis(styles, parsed_email)
     story += build_recommended_actions(styles, rules_result)
     story += build_footer_section(styles, timestamp)
@@ -901,7 +901,7 @@ def build_error_reporting_section(styles, threat_intel):
 
     return elements
     
-def build_ioc_section(styles, rules_result):
+def build_ioc_section(styles, threat_intel):
     """
     Builds the IOC (Indicators of Compromise) section
     """
@@ -914,7 +914,7 @@ def build_ioc_section(styles, rules_result):
         color=LIGHT_BLUE, spaceAfter=6
     ))
 
-    iocs = rules_result.get('iocs', [])
+    iocs = threat_intel.get('iocs', [])
 
     if not iocs:
         elements.append(
