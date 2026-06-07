@@ -15,8 +15,7 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
-    HRFlowable,
-    PageBreak
+    HRFlowable
 )
 from reportlab.platypus.flowables import KeepTogether
 from config import (
@@ -116,7 +115,7 @@ def build_styles():
     """
     Builds all custom paragraph styles used in the report
     """
-    base    = getSampleStyleSheet()
+    #base    = getSampleStyleSheet()
     styles  = {}
 
     styles['title'] = ParagraphStyle(
