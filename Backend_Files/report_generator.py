@@ -88,7 +88,7 @@ def generate_report(
 
     # ── Add sections in order ─────────────────────────────
     story += build_header(styles, rules_result, timestamp)
-    story += build_executive_summary(styles, rules_result, parsed_email)
+    story += build_executive_summary(styles, rules_result, parsed_email, threat_intel)
     story += build_email_metadata(styles, parsed_email)
     story += build_threat_score_section(styles, rules_result, ml_scores)
     story += build_ml_analysis(styles, ml_scores)
@@ -288,7 +288,7 @@ def build_header(styles, rules_result, timestamp):
     return elements
 
 
-def build_executive_summary(styles, rules_result, parsed_email):
+def build_executive_summary(styles, rules_result, parsed_email, threat_intel):
     """
     Builds the executive summary section
     """
@@ -308,7 +308,7 @@ def build_executive_summary(styles, rules_result, parsed_email):
     verdict     = rules_result.get('verdict', 'unknown')
     score       = rules_result.get('total_score', 0)
     rule_count  = len(rules_result.get('triggered_rules', []))
-    ioc_count   = len(rules_result.get('iocs', []))
+    ioc_count   = len(threat_intel.get('iocs', []))
     flag_count  = len(rules_result.get('flags', []))
 
     stats_data = [
