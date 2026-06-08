@@ -208,6 +208,16 @@ def analyze():
             'detail'    : str(e)
         }), 500
 
+@app.route('/metrics', methods=['GET'])
+def metrics():
+
+    from metrics import scan_metrics
+
+    return jsonify({
+        "urls_scanned": scan_metrics["urls_scanned"],
+        "cache_hits": scan_metrics["cache_hits"],
+        "cache_misses": scan_metrics["cache_misses"]
+    })
 
 @app.route('/report/<filename>', methods=['GET'])
 def download_report(filename):
