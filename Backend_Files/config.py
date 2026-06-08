@@ -20,12 +20,13 @@ ABUSEIPDB_API_KEY = ""
 ABUSEIPDB_URL = "https://api.abuseipdb.com/api/v2/check"
 
 # ML Model Paths
-EMAIL_MODEL_PATH = "models/email_model.pkl"
-URL_MODEL_PATH = "models/url_model.pkl"
-TFIDF_VECTORIZER_PATH = "models/tfidf_vectorizer.pkl"
-SCALER_PATH = "models/scaler.pkl"
-URL_FEATURE_NAMES_PATH = "models/url_feature_names.pkl"
-MODEL_METADATA_PATH = "models/model_metadata.json"
+EMAIL_MODEL_PATH = "../TrainedModel/email_model.pkl"
+URL_MODEL_PATH = "../TrainedModel/url_model.pkl"
+
+TFIDF_VECTORIZER_PATH = "../TrainedModel/tfidf_vectorizer.pkl"
+SCALER_PATH = "../TrainedModel/scaler.pkl"
+URL_FEATURE_NAMES_PATH = "../TrainedModel/url_feature_names.pkl"
+MODEL_METADATA_PATH = "../TrainedModel/model_metadata.json"
 
 # ML Settings
 ML_THRESHOLD = 0.75
