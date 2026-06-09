@@ -106,20 +106,24 @@ async function startScan() {
         updateProgress(30);
          await new Promise(resolve => setTimeout(resolve, 500));
 
-        const emailData = await chrome.tabs.sendMessage(
-            tab.id,
-            { action: 'extractEmail' }
-        );
+        const gmailResponse =
+    await chrome.runtime.sendMessage({
+        action: 'fetchGmailEmail'
+    });
 
-        if (!emailData || emailData.error) {
-            showError(
-                emailData?.error ||
-                'Could not extract email. ' +
-                'Please open a specific email in Gmail.'
-            );
-            enableScanButton();
-            return;
-        }
+if (
+    !gmailResponse.success
+) {
+    showError(
+        gmailResponse.error
+    );
+
+    enableScanButton();
+    return;
+}
+
+const emailData =
+    gmailResponse.emailData;
 
         // Send to background for analysis
         updateLoadingStep('Running ML analysis...');
