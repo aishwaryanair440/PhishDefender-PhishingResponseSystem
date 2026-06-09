@@ -68,6 +68,71 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 .then(status => sendResponse(status))
                 .catch(err   => sendResponse({ online: false }));
             return true;
+            
+        case 'testGmailAuth':
+    import('./gmail_api.js')
+        .then(module =>
+            module.testGmailAuth()
+        )
+        .then(result =>
+            sendResponse(result)
+        )
+        .catch(err =>
+            sendResponse({
+                success: false,
+                error: err.message
+            })
+        );
+
+    return true;
+
+    case 'fetchGmailEmail':
+    import('./gmail_api.js')
+        .then(async module => {
+
+            const token =
+                await module.getAuthToken();
+
+            const messages =
+                await module.listMessages(
+                    token,
+                    1
+                );
+
+            if (
+                !messages.messages ||
+                !messages.messages.length
+            ) {
+                throw new Error(
+                    'No Gmail messages found'
+                );
+            }
+
+            const gmailMessage =
+                await module.getMessage(
+                    token,
+                    messages.messages[0].id
+                );
+
+            const emailData =
+    module
+        .convertGmailMessageToEmailData(
+            gmailMessage
+        );
+
+sendResponse({
+    success: true,
+    emailData
+});
+        })
+        .catch(err =>
+            sendResponse({
+                success: false,
+                error: err.message
+            })
+        );
+
+    return true;
 
         default:
             console.warn(`[background] Unknown action: ${message.action}`);

@@ -3,18 +3,27 @@
     "name": "Phishing Detector",
     "version": "1.0.0",
     "description": "AI-powered phishing detection and response platform using ML, threat intelligence APIs, and rule-based automation.",
+    
+    "oauth2": {
+  "client_id": "1062636243700-pg53j7d8rurnd0ivb2p9ru9hfb5tk8ic.apps.googleusercontent.com",
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.readonly"
+  ]
+},
 
     "permissions": [
         "activeTab",
         "storage",
         "scripting",
         "tabs",
-        "notifications"
+        "notifications",
+        "identity"
     ],
 
     "host_permissions": [
         "https://mail.google.com/*",
         "http://127.0.0.1:5000/*",
+        "https://www.googleapis.com/*",
         "http://localhost:5000/*"
     ],
 
